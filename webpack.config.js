@@ -12,7 +12,7 @@ const stylesHandler = MiniCssExtractPlugin.loader;
 
 const config = {
     devtool: 'source-map',
-    entry: './src/brat/index.js',
+    entry: './src/index.js',
     // entry: './src/analysis.js',
     output: {
         path: path.resolve(__dirname, 'dist'),
