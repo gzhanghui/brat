@@ -1,6 +1,7 @@
 import { warn } from './util/debug';
 import $ from 'jquery';
-import './libs/jquery.svg';
+import { SVG } from '@svgdotjs/svg.js';
+import './util/svg.path';
 import { cloneDeep, get, orderBy } from 'lodash';
 import { Arc, Chunk, DocumentData, EventDesc, Span } from './class';
 import Util from './util';
@@ -17,15 +18,11 @@ behaviors(Brat);
 
 $.extend(Brat.prototype, {
   _init: function() {
-    const svg = document.getElementById('svg');
-    $(svg).svg({ onLoad: this._onload.bind(this) });
+    this.draw = SVG().addTo('#svg');
+    this.svgElement = $('#svg svg');
     this.ajax(this.setData.bind(this));
     // this.createAlert()
     // this.bindEvent()
-  },
-  _onload: function(SVG) {
-    this.svg = SVG;
-    this.svgElement = $(SVG._svg);
   },
   ajax: function(callback) {
     $.get('./getCollectionInformation.json').then(res => {
@@ -215,7 +212,7 @@ $.extend(Brat.prototype, {
         if (!data.towers[fragment.towerId]) {
           data.towers[fragment.towerId] = [];
           fragment.drawCurly = true;
-          data.spans[fragment.spanId].drawCurly = true
+          data.spans[fragment.spanId].drawCurly = true;
           // fragment.span.drawCurly = true;
         }
         data.towers[fragment.towerId].push(fragment);
@@ -271,37 +268,11 @@ $.extend(Brat.prototype, {
           }
         }
 
-        let svgText = $('#svg').svg('get').createText(); // one "text" element per row
-        let postfixArray = [];
-        let prefix = '';
-        let postfix = '';
-        let warning = false;
-
         let text = fragment.labelText;
-        if (prefix !== '') {
-          text = prefix + ' ' + text;
-          svgText.string(' ');
-        }
-        svgText.string(fragment.labelText);
-        if (postfixArray.length) {
-          text += ' ' + postfix;
-          svgText.string(' ');
-          console.log(postfixArray);
-          postfixArray.forEach(el => {
-            let css = 'glyph';
-            if (el[0].css) css += ' glyph_' + Util.escapeQuotes(el[0].css);
-            svgText.span(get(el[1], 'glyph'), { class: css });
-          });
-        }
-        if (warning) {
-          svgText.span('#', { class: 'glyph attribute_warning' });
-          text += ' #';
-        }
         fragment.glyphedLabelText = text;
-
         if (!spanAnnTexts[text]) {
           spanAnnTexts[text] = true;
-          this.data.spanAnnTexts[text] = svgText;
+          this.data.spanAnnTexts[text] = fragment.labelText;
         }
       });
     });

@@ -1,3 +1,3 @@
 export function warn(msg) {
-  console.error(`[BScroll warn]: ${msg}`)
+  console.error(`[Brat warn]: ${msg}`)
 }

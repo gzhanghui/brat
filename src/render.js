@@ -1,5 +1,6 @@
 import $ from 'jquery';
 import chroma from 'chroma-js';
+import { Marker } from '@svgdotjs/svg.js';
 import { defaultTo, get, isEmpty } from 'lodash';
 import { Row } from './class';
 import Util from './util';
@@ -12,13 +13,13 @@ function render(Brat) {
       if (isEmpty(data)) return;
       this.spanTypes = this.analysisTypes(this.information);
       this.relationTypesHash = this.analysisRelation(this.information);
-      this.svg.clear(true);
-      this.defs = this.createDefs();
+      this.draw.clear();
+      this.createDefs();
       // 创建分组 按顺序
-      this.backgroundGroup = this.svg.group({ 'class': 'background' });
-      this.highlightGroup = this.svg.group({ 'class': 'highlight' });
-      this.textGroup = this.svg.group({ 'class': 'text' });
-      this.sentNumGroup = this.svg.group({ 'class': 'sentnum' });
+      this.backgroundGroup = this.draw.group().addClass('background');
+      this.highlightGroup = this.draw.group().addClass('highlight');
+      this.textGroup = this.draw.group().addClass('text');
+      this.sentNumGroup = this.draw.group().addClass('sentnum');
       this.canvasWidth = this.svgElement.width();
       const sizes = this.getSizes();
       data.sizes = sizes;
@@ -29,7 +30,7 @@ function render(Brat) {
       const fragmentHeights = [];
       let sentenceToggle = 0;
       let sentenceNumber = 0;
-      let row = new Row(this.svg);
+      let row = new Row(this.draw);
       row.sentence = ++sentenceNumber;
       row.backgroundIndex = sentenceToggle;
       row.index = 0;
@@ -44,8 +45,8 @@ function render(Brat) {
       });
       data.chunks.forEach(chunk => {
         reservations = [];
-        chunk.group = this.svg.group(row.group);
-        chunk.highlightGroup = this.svg.group(chunk.group);
+        chunk.group = row.group.group();
+        chunk.highlightGroup = chunk.group.group();
         let hasLeftArcs, hasRightArcs, hasInternalArcs, hasAnnotations;
         let y = 0;
         let chunkFrom = Infinity;
@@ -57,7 +58,7 @@ function render(Brat) {
         // 文本划线上面的标签
         this.renderFragment(chunk, sizes, y);
         chunk.fragments.forEach(fragment => {
-          const span = this.data.spans[fragment.spanId] ;
+          const span = this.data.spans[fragment.spanId];
           let fragmentHeight = 0;
           const spacedTowerId = fragment.towerId * 2;
           if (!fragmentHeights[spacedTowerId] || fragmentHeights[spacedTowerId] < fragment.height) {
@@ -84,9 +85,9 @@ function render(Brat) {
         if (chunk.sentence) {
           while (sentenceNumber < chunk.sentence) {
             sentenceNumber++;
-            row.arcs = this.svg.group(row.group, { 'class': 'arcs' });
+            row.arcs = row.group.group().addClass('arcs');
             rows.push(row);
-            row = new Row(this.svg);
+            row = new Row(this.draw);
             sentenceToggle = 1 - sentenceToggle;
             row.backgroundIndex = sentenceToggle;
             row.index = ++rowIndex;
@@ -95,7 +96,7 @@ function render(Brat) {
         }
 
         if (chunk.sentence || currentX + boxWidth + rightBorderForArcs >= this.canvasWidth - 2 * Configuration.visual.margin.x) {
-          row.arcs = this.svg.group(row.group, { 'class': 'arcs' });
+          row.arcs = row.group.group().addClass('arcs');
           currentX = Configuration.visual.margin.x + OPTION.sentNumMargin + OPTION.rowPadding + (hasLeftArcs ? OPTION.arcHorizontalSpacing : (hasInternalArcs ? OPTION.arcSlant : 0));
           if (hasLeftArcs) {
             const adjustedCurTextWidth = sizes.texts.widths[chunk.text] + OPTION.arcHorizontalSpacing;
@@ -108,12 +109,12 @@ function render(Brat) {
             spacing = 0; // do not center intervening elements
           }
           rows.push(row);
-          this.svg.remove(chunk.group);
-          row = new Row(this.svg);
+          chunk.group.remove();
+          row = new Row(this.draw);
           row.backgroundIndex = sentenceToggle;
           row.index = ++rowIndex;
-          this.svg.add(row.group, chunk.group);
-          chunk.group = row.group.lastElementChild;
+          row.group.add(chunk.group);
+          chunk.group = row.group.node.lastElementChild;
           $(chunk.group).children('g[class=\'span\']').each(function(index, element) {
             chunk.fragments[index].group = element;
           });
@@ -149,6 +150,7 @@ function render(Brat) {
         row.chunks.push(chunk);
         chunk.row = row;
         this.translate(chunk, currentX + boxX, 0);
+
         chunk.textX = currentX + boxX;
         let spaceWidth = 0;
         const spaceLen = chunk.nextSpace && chunk.nextSpace.length || 0;
@@ -156,7 +158,8 @@ function render(Brat) {
         currentX += spaceWidth + boxWidth;
       });
       // finish the last row
-      row.arcs = this.svg.group(row.group, { 'class': 'arcs' });
+      row.arcs = row.group.group().addClass('arcs');
+
       rows.push(row);
       // 预处理 fragmentHeights 数组
       for (let i = 0; i < fragmentHeights.length; i++) {
@@ -202,9 +205,11 @@ function render(Brat) {
           bgClass = 'background0';
         }
         // 渲染条纹背景
-        this.svg.rect(backgroundGroup, 0, y + sizes.texts.y + sizes.texts.height, this.canvasWidth, rowBoxHeight + sizes.texts.height + 1, {
-          'class': bgClass,
-        });
+        backgroundGroup.rect(this.canvasWidth, rowBoxHeight + sizes.texts.height + 1)
+          .attr({
+            x: 0,
+            y: y + sizes.texts.y + sizes.texts.height,
+          }).addClass(bgClass);
 
         y += rowBoxHeight;
         y += sizes.texts.height;
@@ -224,45 +229,79 @@ function render(Brat) {
     // 文本段落
     renderSentence() {
       const textGroup = this.textGroup;
-      let sentenceText = null;
+      let sentenceText = [];
       this.data.chunks.forEach((chunk, chunkNo) => {
         if (chunk.sentence) {
           if (sentenceText) {
-            this.svg.text(textGroup, 0, 0, sentenceText);
+            textGroup.text(add => {
+              sentenceText.forEach(item => {
+                add.tspan(item.text).attr({
+                  x: item.x,
+                  y: item.y,
+                  'data-chunk-id': item['data-chunk-id'],
+                });
+              });
+            }).attr({ x: 0, y: 0 });
           }
-          sentenceText = null;
+          sentenceText = [];
         }
         if (!sentenceText) {
-          sentenceText = this.svg.createText();
+          sentenceText = [];
         }
         const nextChunk = this.data.chunks[chunkNo + 1];
         const nextSpace = nextChunk ? nextChunk.space : '';
-        sentenceText.span(chunk.text + nextSpace, {
+        sentenceText.push({
+          text: chunk.text + nextSpace,
           x: chunk.textX,
           y: chunk.row.textY,
           'data-chunk-id': chunk.index,
         });
       });
-      if (sentenceText) {
-        this.svg.text(textGroup, 0, 0, sentenceText);
+      if (sentenceText.length) {
+        textGroup.text((add) => {
+          sentenceText.forEach(item => {
+            add.tspan(item.text).attr({
+              x: item.x,
+              y: item.y,
+              'data-chunk-id': item['data-chunk-id'],
+            });
+          });
+        }).attr({ x: 0, y: 0 });
       }
+
+      $('svg').eq(1).width(this.canvasWidth);
+      $('svg').eq(1).height(this.canvasHeight);
     },
     // 渲染行号
     renderLineNumber(row, y) {
       const sentNumGroup = this.sentNumGroup;
       if (row.sentence) {
-        const link = this.svg.link(sentNumGroup, '#/tutorials/bio/010-navigation?focus=sent~1');
-        this.svg.text(link, OPTION.sentNumMargin - Configuration.visual.margin.x, y - OPTION.rowPadding, '' + row.sentence, { 'data-sent': row.sentence });
+        const link = sentNumGroup.link('#/tutorials/bio/010-navigation?focus=sent~1');
+        // debugger
+        link.text('' + row.sentence).attr({
+          x: OPTION.sentNumMargin - Configuration.visual.margin.x,
+          y: y - OPTION.rowPadding, 'data-sent': row.sentence,
+        });
       }
-      // 行数右侧线
-      this.svg.path(sentNumGroup, this.svg.createPath().move(OPTION.sentNumMargin, 0).line(OPTION.sentNumMargin, y));
+      sentNumGroup.line(OPTION.sentNumMargin, 0, OPTION.sentNumMargin, y).stroke({
+        color: '#f06',
+        width: 1,
+        linecap: 'round',
+      });
     },
     // 箭头
     renderArrow() {
-      const arrowhead = this.svg.marker(this.defs, 'drag_arrow', 5, 2.5, 5, 5, 'auto', {
+     const marker = new Marker().attr({
+        id: 'drag_arrow',
+        refX: 5,
+        refY: 2.5,
+        markerWidth: 5,
+        markerHeight: 5,
+        orient: 'auto',
         markerUnits: 'strokeWidth', 'class': 'drag_fill',
-      });
-      this.svg.polyline(arrowhead, [[0, 0], [5, 2.5], [0, 5], [0.2, 2.5]]);
+      })
+      marker.polyline([[0, 0], [5, 2.5], [0, 5], [0.2, 2.5]]);
+      marker.addTo(this.defs)
     },
     // 调整画布尺寸
     resizeCanvas(maxTextWidth) {
@@ -275,7 +314,7 @@ function render(Brat) {
     // 标注（背景高亮、大括号、文本等）
     renderFragment(chunk, sizes, y) {
       chunk.fragments.forEach(fragment => {
-        const span = this.data.spans[fragment.spanId] ;
+        const span = this.data.spans[fragment.spanId];
         // const span = fragment.span;
         const spanDesc = this.spanTypes[span.type];
         const bgColor = get(spanDesc, 'bgColor', get(this.spanTypes, 'SPAN_DEFAULT.bgColor', '#ffffff'));
@@ -284,7 +323,7 @@ function render(Brat) {
         if (borderColor === 'darken') {
           borderColor = Util.adjustColorLightness(bgColor, -0.6);
         }
-        fragment.group = this.svg.group(chunk.group, { 'class': 'span' });
+        fragment.group = chunk.group.group().addClass('span');
         if (!y) y = -sizes.texts.height;
         let x = (fragment.curly.from + fragment.curly.to) / 2;
         let yy = y + sizes.fragments.y;
@@ -309,7 +348,9 @@ function render(Brat) {
           bx = (bx | 0) + 0.5;
         }
         // 绘制标注背景
-        fragment.rect = this.svg.rect(fragment.group, bx, by, bw, bh, {
+        fragment.rect = fragment.group.rect(bw, bh).attr({
+          x: bx,
+          y: by,
           class: rectClass,
           fill: bgColor,
           stroke: borderColor,
@@ -322,19 +363,21 @@ function render(Brat) {
         fragment.rectBox = { x: bx, y: by - span.floor, width: bw, height: bh };
         fragment.height = span.floor + hh + 3 * Configuration.visual.margin.y + Configuration.visual.curlyHeight + Configuration.visual.arcSpacing;
 
-        $(fragment.rect).attr('y', yy - Configuration.visual.margin.y - span.floor);
+        fragment.rect.attr('y', yy - Configuration.visual.margin.y - span.floor);
         // 绘制标注文本
-        this.svg.text(fragment.group, x, y - span.floor, this.data.spanAnnTexts[fragment.glyphedLabelText], { fill: fgColor });
+        fragment.group.text(this.data.spanAnnTexts[fragment.glyphedLabelText])
+          .attr({
+            x, y: y - span.floor, fill: fgColor,
+          });
         // 绘制大括号
         if (fragment.drawCurly) {
           const curlyColor = chroma('grey').css();
           const bottom = yy + hh + Configuration.visual.margin.y - span.floor + 1;
-          this.svg.path(fragment.group, this.svg.createPath()
+          const path = this.draw.path()
             .move(fragment.curly.from, bottom + Configuration.visual.curlyHeight)
             .curveC(fragment.curly.from, bottom, x, bottom + Configuration.visual.curlyHeight, x, bottom)
-            .curveC(x, bottom + Configuration.visual.curlyHeight, fragment.curly.to, bottom, fragment.curly.to, bottom + Configuration.visual.curlyHeight), {
-            'class': 'curly', 'stroke': curlyColor,
-          });
+            .curveC(x, bottom + Configuration.visual.curlyHeight, fragment.curly.to, bottom, fragment.curly.to, bottom + Configuration.visual.curlyHeight);
+          fragment.group.path(path._path).attr({ 'stroke': curlyColor }).addClass('curly');
         }
       });
     },
@@ -347,22 +390,22 @@ function render(Brat) {
         const targetSpan = this.data.spans[arc.target];
         const { left, right, leftBox, rightBox } = this.getRowBBox(this.data, arc);
         const arcDesc = this.resolveArcDesc(arc, originSpan);
-        const leftChunk = this.getChunkById(left.chunkId)
-        const rightChunk = this.getChunkById(right.chunkId)
+        const leftChunk = this.getChunkById(left.chunkId);
+        const rightChunk = this.getChunkById(right.chunkId);
         const leftRow = leftChunk.row.index;
         const rightRow = rightChunk.row.index;
         this.generateArrows(arrows, arcDesc);
         // find the next height
         let height = this.findMaxFragmentHeight(fragmentHeights, left, right);
-        const originChunk = this.getChunkById(originSpan.headFragment.chunkId)
-        const targetChunk = this.getChunkById(targetSpan.headFragment.chunkId)
+        const originChunk = this.getChunkById(originSpan.headFragment.chunkId);
+        const targetChunk = this.getChunkById(targetSpan.headFragment.chunkId);
         const ufoCatcher = originChunk.index === targetChunk.index;
         const chunkReverse = ufoCatcher ? leftBox.x + leftBox.width / 2 < rightBox.x + rightBox.width / 2 : false;
 
         for (let rowIndex = leftRow; rowIndex <= rightRow; rowIndex++) {
           const row = rows[rowIndex];
           row.hasAnnotations = true;
-          const arcGroup = this.svg.group(row.arcs, {
+          const arcGroup = row.arcs.group().attr({
             'data-from': arc.origin,
             'data-to': arc.target,
           });
@@ -478,7 +521,7 @@ function render(Brat) {
 
           for (let i = 0; i < chunk.fragments.length; i++) {
             const fragment = chunk.fragments[orderedIdx[i]];
-            const span = this.data.spans[fragment.spanId]
+            const span = this.data.spans[fragment.spanId];
             const spanDesc = this.spanTypes[span.type];
             const bgColor = get(spanDesc, 'bgColor', get(this.spanTypes, 'SPAN_DEFAULT.bgColor', '#ffffff'));
             let shrink = 0;
@@ -496,10 +539,11 @@ function render(Brat) {
               w: fragment.curly.to - fragment.curly.from - 2 * xShrink,
               h: sizes.texts.height - 2 * yShrink - yStartTweak,
             };
-            this.svg.rect(highlightGroup, fragment.highlightPos.x, fragment.highlightPos.y, fragment.highlightPos.w, fragment.highlightPos.h, {
-              fill: chroma(bgColor).alpha(0.4).css(), //opacity:1,
-              rx: OPTION.highlightRounding.x, ry: OPTION.highlightRounding.y,
-            });
+            highlightGroup.rect(fragment.highlightPos.w, fragment.highlightPos.h)
+              .attr({
+                x: fragment.highlightPos.x, y: fragment.highlightPos.y, fill: chroma(bgColor).alpha(0.4).css(), //opacity:1,
+                rx: OPTION.highlightRounding.x, ry: OPTION.highlightRounding.y,
+              });
           }
         }
       });
@@ -512,9 +556,9 @@ function render(Brat) {
       const leftToRight = originSpan.headFragment.towerId < targetSpan.headFragment.towerId;
       const { leftBox, left, rightBox } = this.getRowBBox(this.data, arc);
       const arcDesc = this.resolveArcDesc(arc, originSpan);
-      const chunk = this.getChunkById(left.chunkId)
-      const originChunk  = this.getChunkById(originSpan.headFragment.chunkId)
-      const targetChunk  = this.getChunkById(targetSpan.headFragment.chunkId)
+      const chunk = this.getChunkById(left.chunkId);
+      const originChunk = this.getChunkById(originSpan.headFragment.chunkId);
+      const targetChunk = this.getChunkById(targetSpan.headFragment.chunkId);
       const leftRow = chunk.row.index;
       const ufoCatcher = originChunk.index === targetChunk.index;
       const chunkReverse = ufoCatcher ? leftBox.x + leftBox.width / 2 < rightBox.x + rightBox.width / 2 : void 0;
@@ -546,7 +590,7 @@ function render(Brat) {
         if (ufoCatcher) arrowAtLabelAdjust = -arrowAtLabelAdjust;
       }
       const arrowStart = textStart - arrowAtLabelAdjust;
-      path = this.svg.createPath().move(arrowStart, -height);
+      path = this.draw.path().move(arrowStart, -height);
       if (index === leftRow) {
         let cornerX = from + ufoCatcherMod * OPTION.arcSlant;
         if (!ufoCatcher && cornerX > arrowStart - 1) {
@@ -565,11 +609,11 @@ function render(Brat) {
       } else {
         path.line(from, -height);
       }
-      this.svg.path(arcGroup, path, {
-        markerEnd: arrowDecl,
-        markerStart: labelArrowDecl,
+      arcGroup.path(path._path).attr({
+        'marker-end': arrowDecl,
+        'marker-start': labelArrowDecl,
         style: 'stroke: ' + color,
-        'strokeDashArray': dashArray,
+        'stroke-dasharray': dashArray,
       });
     },
     drawRightArc: function(arc, arrows, index, arcGroup, height, textEnd) {
@@ -580,9 +624,9 @@ function render(Brat) {
       const { right, leftBox, rightBox } = this.getRowBBox(this.data, arc);
 
 
-      const chunk = this.getChunkById(right.chunkId)
-      const originChunk  = this.getChunkById(originSpan.headFragment.chunkId)
-      const targetChunk  = this.getChunkById(targetSpan.headFragment.chunkId)
+      const chunk = this.getChunkById(right.chunkId);
+      const originChunk = this.getChunkById(originSpan.headFragment.chunkId);
+      const targetChunk = this.getChunkById(targetSpan.headFragment.chunkId);
       const rightRow = chunk.row.index;
       const ufoCatcher = originChunk.index === targetChunk.index;
       const chunkReverse = ufoCatcher ? leftBox.x + leftBox.width / 2 < rightBox.x + rightBox.width / 2 : void 0;
@@ -610,7 +654,8 @@ function render(Brat) {
         if (ufoCatcher) arrowAtLabelAdjust = -arrowAtLabelAdjust;
       }
       const arrowEnd = textEnd + arrowAtLabelAdjust;
-      path = this.svg.createPath().move(arrowEnd, -height);
+      path = this.draw.path().move(arrowEnd, -height);
+
       if (index === rightRow) {
         let cornerX = to - ufoCatcherMod * OPTION.arcSlant;
         if (!ufoCatcher && cornerX < arrowEnd + 1) {
@@ -630,11 +675,11 @@ function render(Brat) {
       } else {
         path.line(to, -height);
       }
-      this.svg.path(arcGroup, path, {
-        markerEnd: arrowDecl,
-        markerStart: labelArrowDecl,
+      arcGroup.path(path._path).attr({
+        'marker-end': arrowDecl,
+        'marker-start': labelArrowDecl,
         style: 'stroke: ' + color,
-        'strokeDashArray': dashArray,
+        'stroke-dasharray': dashArray,
       });
     },
     adjustFragmentSizes: function(data) {
@@ -651,16 +696,17 @@ function render(Brat) {
       return towers;
     },
     translate: function(element, x, y) {
-      $(element.group).attr('transform', 'translate(' + x + ', ' + y + ')');
+      $(element.group.node).attr('transform', `translate(${x}, ${y})`);
       element.translation = { x: x, y: y };
     },
     createDefs: function() {
       const commentName = 'commentName';
       this.svgElement.append('<!-- document: ' + commentName + ' -->');
-      const defs = this.svg.defs();
-      const filter = $('<filter id="Gaussian_Blur"><feGaussianBlur in="SourceGraphic" stdDeviation="2" /></filter>');
-      this.svg.add(defs, filter);
-      return defs;
+      this.defs = this.draw.defs()
+      this.defs.element('filter', { id: 'Gaussian_Blur' }).element('feGaussianBlur', {
+        in: 'SourceGraphic',
+        stdDeviation: '2',
+      });
     },
     sortArcs: function(data, fragmentHeights) {
       // 预计算每个arc的 jumpHeight 和 heightSum
@@ -786,8 +832,8 @@ function render(Brat) {
     findMaxFragmentHeight: function(fragmentHeights, left, right) {
       let height = 0;
       let fromIndex2, toIndex2;
-      const leftChunk = this.getChunkById(left.chunkId)
-      const rightChunk = this.getChunkById(right.chunkId)
+      const leftChunk = this.getChunkById(left.chunkId);
+      const rightChunk = this.getChunkById(right.chunkId);
       if (leftChunk.index === rightChunk.index) {
         fromIndex2 = left.towerId * 2;
         toIndex2 = right.towerId * 2;
@@ -849,14 +895,17 @@ function render(Brat) {
       } else {
         const splitLabelText = labelText.match(/^(.*?)(\d*)$/);
         const noNumLabelText = splitLabelText[1];
-        svgText = this.svg.createText();
-        svgText.span(noNumLabelText, options);
+        svgText = this.draw.text(null).tspan(noNumLabelText).attr(options);
         const subscriptSettings = { 'dy': '0.3em', 'font-size': '80%' };
         $.extend(subscriptSettings, options);
-        svgText.span(splitArcType[2], subscriptSettings);
+        svgText.tspan(splitArcType[2], subscriptSettings);
       }
       // const baseline_shift = sizes.arcs.height / 4;
-      return this.svg.text(arcGroup, (from + to) / 2, -height + baseline_shift, svgText, options);
+      return arcGroup.text(svgText).attr({
+        x: (from + to) / 2,
+        y: -height + baseline_shift,
+        ...options,
+      });
     },
     getRowBBox: function(data, arc) {
       const originSpan = data.spans[arc.origin];
@@ -937,25 +986,26 @@ function render(Brat) {
       };
     },
     measureText(textsHash, options, callback) {
-      const textMeasureGroup = this.svg.group(options);
+      options = options === undefined ? {} : options;
+      const textMeasureGroup = this.draw.group().attr(options);
       for (const text in textsHash) {
         if (textsHash.hasOwnProperty(text)) {
-          this.svg.text(textMeasureGroup, 0, 0, text);
+          textMeasureGroup.text(text).attr({ x: 0, y: 0 });
         }
       }
       // measuring goes on here
       const widths = {};
-      $(textMeasureGroup).find('text').each((index, svgText) => {
-        const text = $(svgText).text();
-        widths[text] = svgText.getComputedTextLength();
+      textMeasureGroup.find('text').forEach((svgText, index) => {
+        const text = svgText.text();
+        widths[text] = svgText.node.getComputedTextLength();
         if (callback) {
           textsHash[text].forEach(object => {
-            callback(object, svgText);
+            callback(object, svgText.node);
           });
         }
       });
-      const bbox = textMeasureGroup.getBBox();
-      this.svg.remove(textMeasureGroup);
+      const bbox = textMeasureGroup.bbox();
+      textMeasureGroup.remove();
       return { widths, height: bbox.height, y: bbox.y };
     },
     generateArrows: function(arrows, arcDesc) {
@@ -995,10 +1045,19 @@ function render(Brat) {
 
       let arrow;
       if (type === 'triangle') {
-        arrow = this.svg.marker(this.defs, arrowId, width, height / 2, width, height, 'auto', {
+        // parent id, refX, refY, mWidth, mHeight, orient, settings
+
+         arrow = new Marker({
+          id: arrowId,
+          refX: width,
+          refY: height / 2,
+          markerWidth: width,
+          markerHeight: height,
+          orient: 'auto',
           markerUnits: 'strokeWidth', 'fill': color,
         });
-        this.svg.polyline(arrow, [[0, 0], [width, height / 2], [0, height], [width / 12, height / 2]]);
+        arrow.polyline([[0, 0], [width, height / 2], [0, height], [width / 12, height / 2]]);
+        arrow.addTo( this.defs)
       }
       return arrowId;
     },

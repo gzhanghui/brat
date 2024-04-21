@@ -99,7 +99,7 @@ class Arc {
 class Row {
   constructor(svg) {
     this.group = svg.group();
-    this.background = svg.group(this.group);
+    this.background = this.group.group();
     this.chunks = [];
     this.hasAnnotations = false;
     this.maxArcHeight = 0;
