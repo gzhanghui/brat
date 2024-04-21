@@ -268,9 +268,6 @@ function render(Brat) {
           });
         }).attr({ x: 0, y: 0 });
       }
-
-      $('svg').eq(1).width(this.canvasWidth);
-      $('svg').eq(1).height(this.canvasHeight);
     },
     // 渲染行号
     renderLineNumber(row, y) {
@@ -995,7 +992,7 @@ function render(Brat) {
       }
       // measuring goes on here
       const widths = {};
-      textMeasureGroup.find('text').forEach((svgText, index) => {
+      textMeasureGroup.find('text').forEach((svgText) => {
         const text = svgText.text();
         widths[text] = svgText.node.getComputedTextLength();
         if (callback) {
