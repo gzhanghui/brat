@@ -27,9 +27,6 @@ class Span {
     this.outgoing = [];
     this.fragments = [];
   }
-  findSpanById(id){
-
-  }
 }
 
 class EventDesc {
@@ -68,11 +65,6 @@ class Chunk {
   }
 }
 
-class Annotation {
-  constructor(text) {
-    this.text = text
-  }
-}
 
 class Arc {
   constructor(eventDesc, role, dist, eventNo) {

@@ -1,13 +1,16 @@
 import $ from 'jquery';
-import { message } from 'antd';
 import Util from './util';
 import get from 'lodash/get';
 import { highlightRounding } from './constants/options';
 import { autoPlacement, computePosition, flip, offset, shift } from '@floating-ui/dom';
-import './index.styl';
-
+import './index.scss';
+const message = {
+  info(){},
+  success(){}
+}
 
 let arcDragOrigin = null;
+let selectedFragment = null;
 let dragStartedAt = null;
 let arcDragOriginGroup = null;
 let arcDragOriginBox = null;
@@ -17,7 +20,6 @@ let lastStartRec = null;
 let lastEndRec = null;
 let arcDragArc = null;
 let spanOptions = null;
-let lastRapidAnnotationEvent = null;
 let reselectedSpan = null;
 
 
@@ -25,11 +27,10 @@ let svgPosition = 0;
 let arcDragJustStarted = false;
 
 const draggedArcHeight = 30;
-let highlightGroup;
-let highlight, highlightArcs, highlightSpans, commentId;
+let highlight, highlightArcs, highlightSpans;
 
 
-function behaviors(Brat, _highlightGroup) {
+function behaviors(Brat) {
   $.extend(Brat.prototype, {
     bindEvent() {
       $(document.getElementById('svg'))
@@ -74,10 +75,10 @@ function behaviors(Brat, _highlightGroup) {
         const my = e.pageY - svgPosition.top + 5;
         const y = Math.min(arcDragOriginBox.y, my) - draggedArcHeight;
         const dx = (arcDragOriginBox.center - mx) / 4;
-        const path = this.svg.createPath().move(arcDragOriginBox.center, arcDragOriginBox.y).curveC(arcDragOriginBox.center - dx, y,
+        const path = this.draw.path().M(arcDragOriginBox.center, arcDragOriginBox.y).curveC(arcDragOriginBox.center - dx, y,
           mx + dx, y,
           mx, my);
-        arcDragArc.setAttribute('d', path.path());
+        arcDragArc.attr('d', path._path);
         this.floating(e, 1);
       } else {
         const sel = window.getSelection();
@@ -145,12 +146,12 @@ function behaviors(Brat, _highlightGroup) {
               rw = -rw;
             }
             const rh = Math.max(startRec.height, endRec.height);
-
             selRect = [];
             const activeSelRect = this.makeSelRect(rx, ry, rw, rh);
             selRect.push(activeSelRect);
             startsAt.parentNode.parentNode.parentNode.insertBefore(activeSelRect, startsAt.parentNode.parentNode);
           } else {
+
             if (startRec.x !== lastStartRec.x && endRec.x !== lastEndRec.x && (startRec.y !== lastStartRec.y || endRec.y !== lastEndRec.y)) {
               if (startRec.y < lastStartRec.y) {
                 selRect[0].setAttributeNS(null, 'width', lastStartRec.width);
@@ -322,8 +323,9 @@ function behaviors(Brat, _highlightGroup) {
           const svgOffset = this.svgElement.offset();
           let flip = false;
           let tries = 0;
+          let sp;
           while (tries < 2) {
-            const sp = this.svg._svg.createSVGPoint();
+            sp = this.svg._svg.createSVGPoint();
             sp.x = (flip ? event.pageX : dragStartedAt.pageX) - svgOffset.left;
             sp.y = (flip ? event.pageY : dragStartedAt.pageY) - (svgOffset.top + 8);
             const startsAt = range.startContainer;
@@ -339,7 +341,6 @@ function behaviors(Brat, _highlightGroup) {
           sp.y = (flip ? dragStartedAt.pageY : event.pageY) - (svgOffset.top + 8);
           const endsAt = range.endContainer;
           focusOffset = endsAt.getCharNumAtPosition(sp);
-
           if (range.startContainer === range.endContainer && anchorOffset > focusOffset) {
             const t = anchorOffset;
             anchorOffset = focusOffset;
@@ -398,19 +399,14 @@ function behaviors(Brat, _highlightGroup) {
             };
           }
 
-          if (!Configuration.rapidModeOn || reselectedSpan !== null) {
+          if (!window.Configuration.rapidModeOn || reselectedSpan !== null) {
             const spanText = this.data.text.substring(selectedFrom, selectedTo);
             message.info(`        fillSpanTypesAndDisplayForm(event, spanText, reselectedSpan);\n
         ${spanText}
          ${reselectedSpan}`).then();
-
-            this.createSpan(spanText, newOffset);
-
-
           } else {
             const spanText = this.data.text.substring(selectedFrom, selectedTo);
-            lastRapidAnnotationEvent = event;
-            message.info(`suggestSpanTypes ${spanText}`).then();
+            message.info(`suggestSpanTypes ${spanText}`);
           }
         }
       }
@@ -419,22 +415,23 @@ function behaviors(Brat, _highlightGroup) {
       const target = $(event.target);
       let id = target.attr('data-span-id');
       if (id) {
-        commentId = id;
         const span = this.data.spans[id];
+        console.log(span);
         // message.info('dispatcher.post(\'displaySpanComment\')');
-        $('#floating').stop().fadeIn(200);
+        $('#floating').stop().delay(800).fadeIn(200);
         const spanDesc = this.spanTypes[span.type];
         const bgColor = get(spanDesc, 'bgColor', get(this.spanTypes, 'SPAN_DEFAULT.bgColor', '#ffffff'));
+        console.log(bgColor);
         highlight = [];
-        $.each(span.fragments, (fragmentNo, fragment) => {
-          highlight.push(this.svg.rect(highlightGroup,
-            fragment.highlightPos.x, fragment.highlightPos.y,
-            fragment.highlightPos.w, fragment.highlightPos.h,
-            {
-              'fill': bgColor, opacity: 0.75,
-              rx: highlightRounding.x,
-              ry: highlightRounding.y,
-            }));
+        span.fragments.forEach((frag) => {
+          highlight.push(this.highlightGroup.rect(
+            frag.highlightPos.w, frag.highlightPos.h).attr({
+            x: frag.highlightPos.x,
+            y: frag.highlightPos.y,
+            'fill': bgColor, opacity: 0.75,
+            rx: highlightRounding.x,
+            ry: highlightRounding.y,
+          }));
         });
 
         if (arcDragOrigin) {
@@ -463,7 +460,6 @@ function behaviors(Brat, _highlightGroup) {
         const arcEventDescId = target.attr('data-arc-ed');
         let commentText = '';
         let commentType = '';
-        let arcId;
         if (arcEventDescId) {
           const eventDesc = this.data.eventDescs[arcEventDescId];
           const comment = eventDesc.comment;
@@ -495,7 +491,7 @@ function behaviors(Brat, _highlightGroup) {
       // message.info(`dispatcher.post('hideComment')`);
       if (highlight) {
         highlight.forEach(item => {
-          this.svg.remove(item);
+          item.remove();
         });
 
         highlight = undefined;
@@ -512,14 +508,14 @@ function behaviors(Brat, _highlightGroup) {
       this.svgElement.addClass('unselectable');
       svgPosition = this.svgElement.offset();
       arcDragOrigin = originId;
-      arcDragArc = this.svg.path(this.svg.createPath(), {
+      arcDragArc = this.draw.path().attr({
         markerEnd: 'url(#drag_arrow)',
         'class': 'drag_stroke',
         fill: 'none',
       });
       arcDragOriginGroup = $(this.data.spans[arcDragOrigin].group);
       arcDragOriginGroup.addClass('highlight');
-      arcDragOriginBox = Util.realBBox(this.data.spans[arcDragOrigin].headFragment);
+      arcDragOriginBox = Util.realBBox(this.data.chunks, this.data.spans[arcDragOrigin].headFragment);
       arcDragOriginBox.center = arcDragOriginBox.x + arcDragOriginBox.width / 2;
       arcDragJustStarted = true;
     },
@@ -534,7 +530,7 @@ function behaviors(Brat, _highlightGroup) {
           target.parent().removeClass('highlight');
         }
         if (arcDragArc) {
-          this.svg.remove(arcDragArc);
+          arcDragArc.remove();
         }
         arcDragOrigin = null;
         if (arcOptions) {

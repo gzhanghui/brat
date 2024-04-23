@@ -1,57 +1,29 @@
-/* -*- Mode: CSS; tab-width: 2; indent-tabs-mode: nil; -*- */
-/* vim:set ft=css ts=2 sw=2 sts=2 autoindent: */
 
-/* Styling for annotations */
 
-/* alternative font test */
-/*
-text {
-  font-size: 13px;
-  font-family: helvetica,arial,freesans,clean,sans-serif;
+@font-face {
+    font-family: 'Liberation Sans';
+    font-style: normal;
+    font-weight: normal;
+    src: local('Liberation Sans'), local('Liberation-Sans'), url('./fonts/Liberation_Sans-Regular.ttf') format('truetype');
 }
-*/
-
+@font-face {
+    font-family: 'PT Sans Caption';
+    font-style: normal;
+    font-weight: normal;
+    src: local('PT Sans Caption'), local('PTSans-Caption'), url('./fonts/PT_Sans-Caption-Web-Regular.ttf') format('truetype');
+}
 #svg {
     margin: 34px auto 100px;
     padding-top: 15px;
     font-family: 'Liberation Sans', Verdana, Arial, Helvetica, sans-serif;
 }
 
-.center_wrapper {
-    display: table;
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 100%;
-}
-.center_wrapper > div {
-    display: table-cell;
-    vertical-align: middle;
-}
-.center_wrapper > div > div {
-    /* match jQuery UI .ui-widget-content color */
-    color: #2e6e9e;
-    margin-left: auto;
-    margin-right: auto;
-    width: 30em;
-    font-size: 12px;
-    font-family: 'Liberation Sans', Verdana, Arial, Helvetica, sans-serif;
-}
-.center_wrapper > div > div h1 {
-    text-align: center;
-    font-size: 14px;
-}
-#no_svg_wrapper {
-    display: none;
-}
 
 #svg svg {
     width: 100%;
     height: 1px;
     border: 1px solid #7fa2ff;
     font-size: 15px;
-    /* font-size: 14px; */
 }
 svg.reselect {
     border: 1px solid #ff3333;
@@ -474,18 +446,7 @@ fieldset legend {
     user-select: none;
     cursor: default;
 }
-@font-face {
-    font-family: 'Liberation Sans';
-    font-style: normal;
-    font-weight: normal;
-    src: local('Liberation Sans'), local('Liberation-Sans'), url('./fonts/Liberation_Sans-Regular.ttf') format('truetype');
-}
-@font-face {
-    font-family: 'PT Sans Caption';
-    font-style: normal;
-    font-weight: normal;
-    src: local('PT Sans Caption'), local('PTSans-Caption'), url('./fonts/PT_Sans-Caption-Web-Regular.ttf') format('truetype');
-}
+
 
 /* Apple iPad, iPhone, iPod */
 

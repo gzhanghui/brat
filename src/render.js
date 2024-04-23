@@ -6,6 +6,8 @@ import { Row } from './class';
 import Util from './util';
 import * as OPTION from './constants/options';
 
+const Configuration = window.Configuration;
+
 function render(Brat) {
   $.extend(Brat.prototype, {
     renderDataReal: function() {
@@ -288,7 +290,7 @@ function render(Brat) {
     },
     // 箭头
     renderArrow() {
-     const marker = new Marker().attr({
+      const marker = new Marker().attr({
         id: 'drag_arrow',
         refX: 5,
         refY: 2.5,
@@ -296,9 +298,9 @@ function render(Brat) {
         markerHeight: 5,
         orient: 'auto',
         markerUnits: 'strokeWidth', 'class': 'drag_fill',
-      })
+      });
       marker.polyline([[0, 0], [5, 2.5], [0, 5], [0.2, 2.5]]);
-      marker.addTo(this.defs)
+      marker.addTo(this.defs);
     },
     // 调整画布尺寸
     resizeCanvas(maxTextWidth) {
@@ -371,7 +373,7 @@ function render(Brat) {
           const curlyColor = chroma('grey').css();
           const bottom = yy + hh + Configuration.visual.margin.y - span.floor + 1;
           const path = this.draw.path()
-            .move(fragment.curly.from, bottom + Configuration.visual.curlyHeight)
+            .M(fragment.curly.from, bottom + Configuration.visual.curlyHeight)
             .curveC(fragment.curly.from, bottom, x, bottom + Configuration.visual.curlyHeight, x, bottom)
             .curveC(x, bottom + Configuration.visual.curlyHeight, fragment.curly.to, bottom, fragment.curly.to, bottom + Configuration.visual.curlyHeight);
           fragment.group.path(path._path).attr({ 'stroke': curlyColor }).addClass('curly');
@@ -538,7 +540,7 @@ function render(Brat) {
             };
             highlightGroup.rect(fragment.highlightPos.w, fragment.highlightPos.h)
               .attr({
-                x: fragment.highlightPos.x, y: fragment.highlightPos.y, fill: chroma(bgColor).alpha(0.4).css(), //opacity:1,
+                x: fragment.highlightPos.x, y: fragment.highlightPos.y, fill: chroma(bgColor).alpha(0.25).css(), //opacity:1,
                 rx: OPTION.highlightRounding.x, ry: OPTION.highlightRounding.y,
               });
           }
@@ -587,7 +589,7 @@ function render(Brat) {
         if (ufoCatcher) arrowAtLabelAdjust = -arrowAtLabelAdjust;
       }
       const arrowStart = textStart - arrowAtLabelAdjust;
-      path = this.draw.path().move(arrowStart, -height);
+      path = this.draw.path().M(arrowStart, -height);
       if (index === leftRow) {
         let cornerX = from + ufoCatcherMod * OPTION.arcSlant;
         if (!ufoCatcher && cornerX > arrowStart - 1) {
@@ -651,7 +653,7 @@ function render(Brat) {
         if (ufoCatcher) arrowAtLabelAdjust = -arrowAtLabelAdjust;
       }
       const arrowEnd = textEnd + arrowAtLabelAdjust;
-      path = this.draw.path().move(arrowEnd, -height);
+      path = this.draw.path().M(arrowEnd, -height);
 
       if (index === rightRow) {
         let cornerX = to - ufoCatcherMod * OPTION.arcSlant;
@@ -680,7 +682,7 @@ function render(Brat) {
       });
     },
     adjustFragmentSizes: function(data) {
-      const towers = { ...data.towers };
+      const towers = data.towers;
       for (let k in towers) {
         const maxWidth = Math.max(...towers[k].map((fragment) => {
           const width = data.sizes.fragments.widths[fragment.glyphedLabelText];
@@ -699,7 +701,7 @@ function render(Brat) {
     createDefs: function() {
       const commentName = 'commentName';
       this.svgElement.append('<!-- document: ' + commentName + ' -->');
-      this.defs = this.draw.defs()
+      this.defs = this.draw.defs();
       this.defs.element('filter', { id: 'Gaussian_Blur' }).element('feGaussianBlur', {
         in: 'SourceGraphic',
         stdDeviation: '2',
@@ -986,9 +988,7 @@ function render(Brat) {
       options = options === undefined ? {} : options;
       const textMeasureGroup = this.draw.group().attr(options);
       for (const text in textsHash) {
-        if (textsHash.hasOwnProperty(text)) {
-          textMeasureGroup.text(text).attr({ x: 0, y: 0 });
-        }
+        textMeasureGroup.text(text).attr({ x: 0, y: 0 });
       }
       // measuring goes on here
       const widths = {};
@@ -1044,7 +1044,7 @@ function render(Brat) {
       if (type === 'triangle') {
         // parent id, refX, refY, mWidth, mHeight, orient, settings
 
-         arrow = new Marker({
+        arrow = new Marker({
           id: arrowId,
           refX: width,
           refY: height / 2,
@@ -1054,7 +1054,7 @@ function render(Brat) {
           markerUnits: 'strokeWidth', 'fill': color,
         });
         arrow.polyline([[0, 0], [width, height / 2], [0, height], [width / 12, height / 2]]);
-        arrow.addTo( this.defs)
+        arrow.addTo(this.defs);
       }
       return arrowId;
     },

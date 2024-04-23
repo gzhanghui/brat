@@ -1,7 +1,7 @@
 import { Path } from '@svgdotjs/svg.js';
 
 Path.prototype._path = '';
-Path.prototype.move = function(x, y, relative) {
+Path.prototype.M = function(x, y, relative) {
   relative = (Array.isArray(x) ? y : relative);
   return this.coords((relative ? 'm' : 'M'), x, y);
 };

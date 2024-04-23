@@ -7,7 +7,7 @@ import { Arc, Chunk, DocumentData, EventDesc, Span } from './class';
 import Util from './util';
 import render from './render';
 import behaviors from './event';
-import './index.styl';
+import './index.scss';
 
 function Brat() {
   this._init();
@@ -21,8 +21,11 @@ $.extend(Brat.prototype, {
     this.draw = SVG().addTo('#svg');
     this.svgElement = $('#svg svg');
     this.ajax(this.setData.bind(this));
-    // this.createAlert()
-    // this.bindEvent()
+    this.draw.on('click',(e)=>{
+      console.log(e);
+    })
+    this.createAlert()
+    this.bindEvent()
   },
   ajax: function(callback) {
     $.get('./getCollectionInformation.json').then(res => {
@@ -259,7 +262,7 @@ $.extend(Brat.prototype, {
         const spanLabels = Util.getSpanLabels(spanTypes, this.data.spans[fragment.spanId].type);
         fragment.labelText = spanLabels[0] || this.data.spans[fragment.spanId].type;
         // Find the most appropriate label according to text width
-        if (Configuration.abbrevsOn && spanLabels) {
+        if (window.Configuration.abbrevsOn && spanLabels) {
           let labelIdx = 1; // first abbrev
           const maxLength = (fragment.to - fragment.from) / 0.8;
           while (fragment.labelText.length > maxLength && spanLabels[labelIdx]) {
