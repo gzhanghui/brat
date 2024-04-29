@@ -4,10 +4,12 @@ module.exports = {
     browser: true,
     es6: true,
   },
-  parser: "@babel/eslint-parser",
+  parser: '@babel/eslint-parser',
   parserOptions: {
     ecmaVersion: 6,
     sourceType: 'module',
   },
-  rules: {},
+  rules: {
+    "no-debugger": 0,
+  },
 };

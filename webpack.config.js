@@ -8,7 +8,6 @@ const ESLintWebpackPlugin = require('eslint-webpack-plugin');
 const isProduction = process.env.NODE_ENV === 'production';
 const stylesHandler = MiniCssExtractPlugin.loader;
 
-
 const config = {
   devtool: 'source-map',
   entry: './src/index.js',
@@ -36,11 +35,8 @@ const config = {
     rules: [
       {
         test: /\.(js|jsx)$/i,
+        exclude: /node_modules/,
         loader: 'babel-loader',
-      },
-      {
-        test: /\.styl$/i,
-        use: [stylesHandler, 'css-loader', 'postcss-loader', 'stylus-loader'],
       },
       {
         test: /\.css$/i,
@@ -52,7 +48,15 @@ const config = {
       },
       {
         test: /\.scss$/,
-        use: [stylesHandler, 'css-loader', 'sass-loader'],
+        use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader', 'postcss-loader'],
+      },
+      {
+        mimetype: 'image/svg+xml',
+        scheme: 'data',
+        type: 'asset/resource',
+        generator: {
+          filename: 'icons/[hash].svg',
+        },
       },
     ],
   },

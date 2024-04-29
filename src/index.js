@@ -1,13 +1,14 @@
 import { warn } from './util/debug';
-import $ from 'jquery';
-import { SVG } from '@svgdotjs/svg.js';
-import './util/svg.path';
-import { cloneDeep, get, orderBy } from 'lodash';
+import { Path, SVG } from '@svgdotjs/svg.js';
+import { get, orderBy, extend } from 'lodash';
 import { Arc, Chunk, DocumentData, EventDesc, Span } from './class';
 import Util from './util';
 import render from './render';
 import behaviors from './event';
-import './index.scss';
+import pathMixins from './util/svg.path';
+import './assets/index.scss';
+
+pathMixins(Path);
 
 function Brat() {
   this._init();
@@ -16,63 +17,66 @@ function Brat() {
 render(Brat);
 behaviors(Brat);
 
-$.extend(Brat.prototype, {
-  _init: function() {
-    this.draw = SVG().addTo('#svg');
-    this.svgElement = $('#svg svg');
+extend(Brat.prototype, {
+  _init: function () {
+    this.draw = SVG().addClass('canvas').addTo('#svg');
+    console.log(this.draw);
     this.ajax(this.setData.bind(this));
-    this.draw.on('click',(e)=>{
+    this.draw.on('click', (e) => {
       console.log(e);
-    })
-    this.createAlert()
-    this.bindEvent()
-  },
-  ajax: function(callback) {
-    $.get('./getCollectionInformation.json').then(res => {
-      this.information = res;
-      $.get('./data.json').then(data => {
-        this.sourceData = data;
-        callback && callback();
-      });
     });
+    this.bindEvent();
+  },
+  ajax: function (callback) {
+    fetch('./getCollectionInformation.json')
+      .then((res) => res.json())
+      .then((res) => {
+        this.information = res;
+        fetch('./data.json')
+          .then((res) => res.json())
+          .then((data) => {
+            this.sourceData = data;
+            callback && callback();
+          });
+      });
   },
   // 初始缺省参数
-  _setSourceDataDefaults: function() {
+  _setSourceDataDefaults: function () {
     const list = ['attributes', 'comments', 'entities', 'equivs', 'events', 'modifications', 'normalizations', 'relations', 'triggers'];
-    list.forEach(item => {
+    list.forEach((item) => {
       if (this.sourceData[item] == null) {
         this.sourceData[item] = [];
       }
     });
   },
   // 处理 data
-  setData: function() {
+  setData: function () {
     this._setSourceDataDefaults();
     // 初始化 DocumentData
     this.data = new DocumentData(this.sourceData.text);
     // ID TYPE OFFSETS
-    this.sourceData.entities.forEach(item => {
+    this.sourceData.entities.forEach((item) => {
       this.data.spans[item[0]] = new Span(item[0], item[1], item[2]);
     });
-    get(this.sourceData, 'events', []).forEach(item => {
+    get(this.sourceData, 'events', []).forEach((item) => {
       const eventDesc = new EventDesc(item[0], item[1], item[2]);
-      const trigger = get(this.sourceData, 'triggers', []).find(t => eventDesc.triggerId === t[0]);
+      const trigger = get(this.sourceData, 'triggers', []).find((t) => eventDesc.triggerId === t[0]);
       this.data.spans[eventDesc.id] = new Span(eventDesc.id, trigger[1], trigger[2]);
       this.data.eventDescs[item[0]] = eventDesc;
     });
-    Object.values(this.data.spans).forEach(span => {
+    Object.values(this.data.spans).forEach((span) => {
       span.offsets.forEach(([from, to], index) => {
         span.fragments.push({ id: index, spanId: span.id, from: parseInt(from, 10), to: parseInt(to, 10) });
       });
-      span.fragments = orderBy(span.fragments, value => value.form - value.to, 'desc');
+      span.fragments = orderBy(span.fragments, (value) => value.form - value.to, 'desc');
       span.headFragment = span.fragments[span.fragments.length - 1];
     });
-    const relationTypesHash = this.analysisRelation(this.sourceData);
+    this.relationTypes = this.analysisRelation(this.sourceData);
     get(this.sourceData, 'equivs', []).forEach((item, index) => {
       item[0] = '*' + index;
       const equivSpans = item.slice(2);
       const okEquivSpans = [];
-      equivSpans.forEach(m => {
+      equivSpans.forEach((m) => {
         if (this.data.spans[m]) okEquivSpans.push(m);
       });
       okEquivSpans.sort((a, b) => {
@@ -90,8 +94,8 @@ $.extend(Brat.prototype, {
         eventDesc.rightSpans = okEquivSpans.slice(i);
       }
     });
-    get(this.sourceData, 'relations', []).forEach(item => {
-      let argsDesc = relationTypesHash[item[1]];
+    get(this.sourceData, 'relations', []).forEach((item) => {
+      let argsDesc = this.relationTypes[item[1]];
       argsDesc = argsDesc && argsDesc.args;
       let t1, t2;
       if (argsDesc) {
@@ -114,7 +118,6 @@ $.extend(Brat.prototype, {
     this.assignTowerIds(fragments);
     this.addTowers();
     this.generateChunkTexts();
-    this.data = cloneDeep(this.data);
     console.info('dataReady', this.data);
     this.renderDataReal();
   },
@@ -158,7 +161,7 @@ $.extend(Brat.prototype, {
       // fragment.chunk =chunk
       chunk.fragments.push(fragment);
     });
-    this.data.chunks.forEach(chunk => {
+    this.data.chunks.forEach((chunk) => {
       chunk.fragments.sort(this.fragmentComparator);
       chunk.fragments.forEach((fragment, index) => {
         fragment.indexNumber = index;
@@ -168,19 +171,19 @@ $.extend(Brat.prototype, {
     return fragmentList;
   },
   processArcAndSpan() {
-    Object.values(this.data.spans).forEach(span => {
+    Object.values(this.data.spans).forEach((span) => {
       span.avgDist = span.numArcs ? span.totalDist / span.numArcs : 0;
       const fragmentTexts = [];
-      span.fragments.forEach(fragment => {
+      span.fragments.forEach((fragment) => {
         fragmentTexts.push(fragment.text);
       });
       span.text = fragmentTexts.join('');
     });
     for (let i = 0; i < 2; i++) {
-      Object.values(this.data.spans).forEach(span => {
+      Object.values(this.data.spans).forEach((span) => {
         span.refedIndexSum = 0;
       });
-      this.data.arcs.forEach(arc => {
+      this.data.arcs.forEach((arc) => {
         this.data.spans[arc.origin].refedIndexSum += this.data.spans[arc.target].headFragment.indexNumber;
       });
     }
@@ -188,7 +191,7 @@ $.extend(Brat.prototype, {
     this.data.arcs = arcs;
     this.data.arcById = arcById;
   },
-  assignTowerIds: function(fragments) {
+  assignTowerIds: function (fragments) {
     let lastFragment = null;
     let towerId = -1;
     fragments.forEach((fragment) => {
@@ -200,7 +203,7 @@ $.extend(Brat.prototype, {
     });
     return fragments;
   },
-  addTowers: function() {
+  addTowers: function () {
     const data = this.data;
     data.order = Object.keys(this.data.spans).sort((a, b) => {
       const spanA = this.data.spans[a];
@@ -209,9 +212,9 @@ $.extend(Brat.prototype, {
       return diff < 0 ? -1 : diff > 0 ? 1 : 0;
     });
 
-    data.order.forEach(spanId => {
+    data.order.forEach((spanId) => {
       const span = data.spans[spanId];
-      span.fragments.forEach(fragment => {
+      span.fragments.forEach((fragment) => {
         if (!data.towers[fragment.towerId]) {
           data.towers[fragment.towerId] = [];
           fragment.drawCurly = true;
@@ -222,7 +225,7 @@ $.extend(Brat.prototype, {
       });
     });
   },
-  chunkByTokenOffset: function() {
+  chunkByTokenOffset: function () {
     const fragments = this.getFragments();
     const chunks = [];
     let firstFrom = null;
@@ -250,8 +253,8 @@ $.extend(Brat.prototype, {
     });
     return chunks;
   },
-  generateChunkTexts: function() {
-    const spanTypes = this.analysisTypes(this.information);
+  generateChunkTexts: function () {
+    this.spanTypes = this.analysisTypes(this.information);
     const spanAnnTexts = {};
     this.data.chunks.forEach((chunk) => {
       chunk.fragments.forEach((fragment) => {
@@ -259,7 +262,7 @@ $.extend(Brat.prototype, {
           chunk.firstFragmentIndex = fragment.towerId;
         }
         chunk.lastFragmentIndex = fragment.towerId;
-        const spanLabels = Util.getSpanLabels(spanTypes, this.data.spans[fragment.spanId].type);
+        const spanLabels = Util.getSpanLabels(this.spanTypes, this.data.spans[fragment.spanId].type);
         fragment.labelText = spanLabels[0] || this.data.spans[fragment.spanId].type;
         // Find the most appropriate label according to text width
         if (window.Configuration.abbrevsOn && spanLabels) {
@@ -280,10 +283,10 @@ $.extend(Brat.prototype, {
       });
     });
   },
-  generateArcs: function() {
+  generateArcs: function () {
     const arcs = [];
     const arcById = {};
-    Object.values(this.data.eventDescs).forEach(item => {
+    Object.values(this.data.eventDescs).forEach((item) => {
       const origin = this.data.spans[item.id];
       if (!origin) {
         warn('eventDesc');
@@ -312,12 +315,12 @@ $.extend(Brat.prototype, {
     });
     return { arcById, arcs };
   },
-  getFragments: function() {
+  getFragments: function () {
     const fragments = [];
     const spans = Object.values(this.data.spans);
-    spans.forEach(span => {
-      span.fragments.forEach(f => {
-        fragments.push((f));
+    spans.forEach((span) => {
+      span.fragments.forEach((f) => {
+        fragments.push(f);
       });
     });
     fragments.sort((a, b) => {
@@ -332,9 +335,9 @@ $.extend(Brat.prototype, {
     return fragments;
   },
   getChunkById(chunkId) {
-    return this.data.chunks.find(c => c.index === chunkId);
+    return this.data.chunks.find((c) => c.index === chunkId);
   },
-  fragmentComparator: function(a, b) {
+  fragmentComparator: function (a, b) {
     const aSpan = a.span;
     const bSpan = b.span;
     // 判断fragments长度
@@ -355,7 +358,7 @@ $.extend(Brat.prototype, {
     // 判断跨度大小并考虑特殊情况
     const ad = a.to - a.from;
     const bd = b.to - b.from;
-    result = (aSpan.numArcs === 0 && bSpan.numArcs === 0) ? -ad + bd : ad - bd;
+    result = aSpan.numArcs === 0 && bSpan.numArcs === 0 ? -ad + bd : ad - bd;
     if (result !== 0) {
       return result < 0 ? 1 : -1;
     }
@@ -365,17 +368,17 @@ $.extend(Brat.prototype, {
     }
     return aSpan.type < bSpan.type ? -1 : aSpan.type > bSpan.type ? 1 : 0;
   },
-  analysisRelation: function(data) {
+  analysisRelation: function (data) {
     const result = {};
-    get(data, 'relation_types', []).forEach(item => {
+    get(data, 'relation_types', []).forEach((item) => {
       result[item.type] = item;
     });
     return result;
   },
-  analysisTypes: function(data) {
+  analysisTypes: function (data) {
     const spanTypes = {};
     const loadSpanTypes = (types = []) => {
-      types.forEach(item => {
+      types.forEach((item) => {
         if (item) {
           spanTypes[item.type] = item;
           const children = item.children;
@@ -393,6 +396,3 @@ $.extend(Brat.prototype, {
 });
 export default Brat;
 new Brat();
-
-
-

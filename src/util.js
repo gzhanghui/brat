@@ -20,10 +20,6 @@ const Util = (function() {
     return type && type.labels || [];
   };
 
-  const spanDisplayForm = function(spanTypes, spanType) {
-    const labels = getSpanLabels(spanTypes, spanType);
-    return labels[0] || spanType;
-  };
 
   const getArcLabels = function(spanTypes, spanType, arcType, relationTypesHash) {
     const type = spanTypes[spanType];
@@ -48,10 +44,7 @@ const Util = (function() {
     return arcDesc && arcDesc.labels || [];
   };
 
-  const arcDisplayForm = function(spanTypes, spanType, arcType, relationTypesHash) {
-    const labels = getArcLabels(spanTypes, spanType, arcType, relationTypesHash);
-    return labels[0] || arcType;
-  };
+
 
 
   const strToRgb = function(color) {
@@ -142,9 +135,7 @@ const Util = (function() {
   return {
     realBBox: realBBox,
     getSpanLabels: getSpanLabels,
-    spanDisplayForm: spanDisplayForm,
     getArcLabels: getArcLabels,
-    arcDisplayForm: arcDisplayForm,
     cmp: cmp,
     rgbToHsl: rgbToHsl,
     hslToRgb: hslToRgb,

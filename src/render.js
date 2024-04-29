@@ -1,7 +1,6 @@
-import $ from 'jquery';
 import chroma from 'chroma-js';
-import { Marker } from '@svgdotjs/svg.js';
-import { defaultTo, get, isEmpty } from 'lodash';
+import { Marker, Path } from '@svgdotjs/svg.js';
+import { defaultTo, get, isElement, isEmpty, extend, isNumber } from 'lodash';
 import { Row } from './class';
 import Util from './util';
 import * as OPTION from './constants/options';
@@ -9,26 +8,24 @@ import * as OPTION from './constants/options';
 const Configuration = window.Configuration;
 
 function render(Brat) {
-  $.extend(Brat.prototype, {
-    renderDataReal: function() {
+  extend(Brat.prototype, {
+    renderDataReal: function () {
       const data = this.data;
       if (isEmpty(data)) return;
-      this.spanTypes = this.analysisTypes(this.information);
-      this.relationTypesHash = this.analysisRelation(this.information);
       this.draw.clear();
       this.createDefs();
       // 创建分组 按顺序
       this.backgroundGroup = this.draw.group().addClass('background');
       this.highlightGroup = this.draw.group().addClass('highlight');
       this.textGroup = this.draw.group().addClass('text');
-      this.sentNumGroup = this.draw.group().addClass('sentnum');
-      this.canvasWidth = this.svgElement.width();
+      this.lineNumGroup = this.draw.group().addClass('line-number');
+      this.canvasWidth = this.draw.node.clientWidth;
       const sizes = this.getSizes();
       data.sizes = sizes;
       data.towers = this.adjustFragmentSizes(data);
+      this.rows = [];
       let maxTextWidth = Math.max(...Object.values(sizes.texts.widths));
       let currentX = Configuration.visual.margin.x + OPTION.sentNumMargin + OPTION.rowPadding;
-      const rows = [];
       const fragmentHeights = [];
       let sentenceToggle = 0;
       let sentenceNumber = 0;
@@ -37,7 +34,6 @@ function render(Brat) {
       row.backgroundIndex = sentenceToggle;
       row.index = 0;
       let rowIndex = 0;
-      const openTextHighlights = {};
       const floors = [];
       let reservations = [];
       // 给 span 添加 floor
@@ -45,7 +41,7 @@ function render(Brat) {
         const span = data.spans[id];
         this.calcFloorAndReservations(span, floors, reservations, sizes);
       });
-      data.chunks.forEach(chunk => {
+      data.chunks.forEach((chunk) => {
         reservations = [];
         chunk.group = row.group.group();
         chunk.highlightGroup = chunk.group.group();
@@ -59,7 +55,7 @@ function render(Brat) {
         let spacingRowBreak = 0;
         // 文本划线上面的标签
         this.renderFragment(chunk, sizes, y);
-        chunk.fragments.forEach(fragment => {
+        chunk.fragments.forEach((fragment) => {
           const span = this.data.spans[fragment.spanId];
           let fragmentHeight = 0;
           const spacedTowerId = fragment.towerId * 2;
@@ -82,13 +78,12 @@ function render(Brat) {
         const boxX = -Math.min(chunkFrom, 0);
         const boxWidth = Math.max(textWidth, chunkTo) - Math.min(0, chunkFrom);
         if (spacing > 0) currentX += spacing;
-        const rightBorderForArcs = hasRightArcs ? OPTION.arcHorizontalSpacing : (hasInternalArcs ? OPTION.arcSlant : 0);
-        const lastRow = row;
+        const rightBorderForArcs = hasRightArcs ? OPTION.arcHorizontalSpacing : hasInternalArcs ? OPTION.arcSlant : 0;
         if (chunk.sentence) {
           while (sentenceNumber < chunk.sentence) {
             sentenceNumber++;
             row.arcs = row.group.group().addClass('arcs');
-            rows.push(row);
+            this.rows.push(row);
             row = new Row(this.draw);
             sentenceToggle = 1 - sentenceToggle;
             row.backgroundIndex = sentenceToggle;
@@ -99,7 +94,7 @@ function render(Brat) {
 
         if (chunk.sentence || currentX + boxWidth + rightBorderForArcs >= this.canvasWidth - 2 * Configuration.visual.margin.x) {
           row.arcs = row.group.group().addClass('arcs');
-          currentX = Configuration.visual.margin.x + OPTION.sentNumMargin + OPTION.rowPadding + (hasLeftArcs ? OPTION.arcHorizontalSpacing : (hasInternalArcs ? OPTION.arcSlant : 0));
+          currentX = Configuration.visual.margin.x + OPTION.sentNumMargin + OPTION.rowPadding + (hasLeftArcs ? OPTION.arcHorizontalSpacing : hasInternalArcs ? OPTION.arcSlant : 0);
           if (hasLeftArcs) {
             const adjustedCurTextWidth = sizes.texts.widths[chunk.text] + OPTION.arcHorizontalSpacing;
             if (adjustedCurTextWidth > maxTextWidth) {
@@ -110,26 +105,23 @@ function render(Brat) {
             currentX += spacingRowBreak;
             spacing = 0; // do not center intervening elements
           }
-          rows.push(row);
+          this.rows.push(row);
           chunk.group.remove();
           row = new Row(this.draw);
           row.backgroundIndex = sentenceToggle;
           row.index = ++rowIndex;
           row.group.add(chunk.group);
           chunk.group = row.group.node.lastElementChild;
-          $(chunk.group).children('g[class=\'span\']').each(function(index, element) {
-            chunk.fragments[index].group = element;
-          });
-          $(chunk.group).find('rect[data-span-id]').each(function(index, element) {
-            chunk.fragments[index].rect = element;
-          });
+          const gSpan = chunk.group.querySelectorAll('g.span');
+          for (let i = 0; i < gSpan.length; i++) {
+            chunk.fragments[i].group = gSpan[i];
+          }
+          const rect = chunk.group.querySelectorAll('rect[data-span-id]');
+          for (let i = 0; i < rect.length; i++) {
+            chunk.fragments[i].rect = rect[i];
+          }
         }
-        // break the text highlights when  the row breaks
-        if (row.index !== lastRow.index) {
-          $.each(openTextHighlights, function(textId, textDesc) {
-            textDesc[3] = currentX;
-          });
-        }
+
         // XXX check this - is it used? should it be lastRow?
         if (hasAnnotations) row.hasAnnotations = true;
         if (chunk.sentence) {
@@ -155,14 +147,14 @@ function render(Brat) {
 
         chunk.textX = currentX + boxX;
         let spaceWidth = 0;
-        const spaceLen = chunk.nextSpace && chunk.nextSpace.length || 0;
+        const spaceLen = (chunk.nextSpace && chunk.nextSpace.length) || 0;
         for (let i = 0; i < spaceLen; i++) spaceWidth += OPTION.spaceWidths[chunk.nextSpace[i]] || 0;
         currentX += spaceWidth + boxWidth;
       });
       // finish the last row
       row.arcs = row.group.group().addClass('arcs');
 
-      rows.push(row);
+      this.rows.push(row);
       // 预处理 fragmentHeights 数组
       for (let i = 0; i < fragmentHeights.length; i++) {
         if (!fragmentHeights[i] || fragmentHeights[i] < Configuration.visual.arcStartHeight) {
@@ -174,9 +166,9 @@ function render(Brat) {
       // 箭头
       this.renderArrow();
       // 弧线
-      this.renderArc(rows, sizes, fragmentHeights);
+      this.renderArc(sizes, fragmentHeights);
       // 背景
-      this.renderBackground(rows, sizes);
+      this.renderBackground(sizes);
       // 文本高亮渲染
       this.renderChunkRect(sizes);
       // 文本渲染
@@ -184,12 +176,12 @@ function render(Brat) {
       // 调整 SVG 尺寸
       this.resizeCanvas(maxTextWidth);
     },
-    renderBackground: function(rows, sizes) {
+    renderBackground: function (sizes) {
       const backgroundGroup = this.backgroundGroup;
       let y = Configuration.visual.margin.y;
-      rows.forEach(row => {
-        row.chunks.forEach(chunk => {
-          chunk.fragments.forEach(fragment => {
+      this.rows.forEach((row) => {
+        row.chunks.forEach((chunk) => {
+          chunk.fragments.forEach((fragment) => {
             if (row.maxSpanHeight < fragment.height) row.maxSpanHeight = fragment.height;
           });
         });
@@ -207,11 +199,13 @@ function render(Brat) {
           bgClass = 'background0';
         }
         // 渲染条纹背景
-        backgroundGroup.rect(this.canvasWidth, rowBoxHeight + sizes.texts.height + 1)
+        backgroundGroup
+          .rect(this.canvasWidth, rowBoxHeight + sizes.texts.height + 1)
           .attr({
             x: 0,
             y: y + sizes.texts.y + sizes.texts.height,
-          }).addClass(bgClass);
+          })
+          .addClass(bgClass);
 
         y += rowBoxHeight;
         y += sizes.texts.height;
@@ -235,15 +229,13 @@ function render(Brat) {
       this.data.chunks.forEach((chunk, chunkNo) => {
         if (chunk.sentence) {
           if (sentenceText) {
-            textGroup.text(add => {
-              sentenceText.forEach(item => {
-                add.tspan(item.text).attr({
-                  x: item.x,
-                  y: item.y,
-                  'data-chunk-id': item['data-chunk-id'],
+            textGroup
+              .text((add) => {
+                sentenceText.forEach((item) => {
+                  add.tspan(item.text).attr({ x: item.x, y: item.y, 'data-chunk-id': item['data-chunk-id'] });
                 });
-              });
-            }).attr({ x: 0, y: 0 });
+              })
+              .attr({ x: 0, y: 0 });
           }
           sentenceText = [];
         }
@@ -260,35 +252,39 @@ function render(Brat) {
         });
       });
       if (sentenceText.length) {
-        textGroup.text((add) => {
-          sentenceText.forEach(item => {
-            add.tspan(item.text).attr({
-              x: item.x,
-              y: item.y,
-              'data-chunk-id': item['data-chunk-id'],
+        textGroup
+          .text((add) => {
+            sentenceText.forEach((item) => {
+              add.tspan(item.text).attr({
+                x: item.x,
+                y: item.y,
+                'data-chunk-id': item['data-chunk-id'],
+              });
             });
-          });
-        }).attr({ x: 0, y: 0 });
+          })
+          .attr({ x: 0, y: 0 });
       }
     },
     // 渲染行号
     renderLineNumber(row, y) {
-      const sentNumGroup = this.sentNumGroup;
+      const lineNumGroup = this.lineNumGroup;
       if (row.sentence) {
-        const link = sentNumGroup.link('#/tutorials/bio/010-navigation?focus=sent~1');
-        // debugger
-        link.text('' + row.sentence).attr({
+        const link = lineNumGroup.link(`#${row.sentence}`);
+        link.text(row.sentence).attr({
           x: OPTION.sentNumMargin - Configuration.visual.margin.x,
-          y: y - OPTION.rowPadding, 'data-sent': row.sentence,
+          y: y - OPTION.rowPadding,
+          fill: '#237893',
+          'data-sent': row.sentence,
+          'text-anchor': 'end',
+          'font-family': 'Menlo, Monaco, "Courier New", monospace',
         });
       }
-      sentNumGroup.line(OPTION.sentNumMargin, 0, OPTION.sentNumMargin, y).stroke({
+      lineNumGroup.line(OPTION.sentNumMargin, 0, OPTION.sentNumMargin, y).stroke({
         color: '#f06',
         width: 1,
         linecap: 'round',
       });
-    },
-    // 箭头
+    }, // 箭头
     renderArrow() {
       const marker = new Marker().attr({
         id: 'drag_arrow',
@@ -297,22 +293,25 @@ function render(Brat) {
         markerWidth: 5,
         markerHeight: 5,
         orient: 'auto',
-        markerUnits: 'strokeWidth', 'class': 'drag_fill',
+        markerUnits: 'strokeWidth',
+        class: 'drag_fill',
       });
-      marker.polyline([[0, 0], [5, 2.5], [0, 5], [0.2, 2.5]]);
+      marker.polyline([
+        [0, 0],
+        [5, 2.5],
+        [0, 5],
+        [0.2, 2.5],
+      ]);
       marker.addTo(this.defs);
-    },
-    // 调整画布尺寸
+    }, // 调整画布尺寸
     resizeCanvas(maxTextWidth) {
       const width = maxTextWidth + OPTION.sentNumMargin + 2 * Configuration.visual.margin.x + 1;
-      const canvasWidth = this.svgElement.width();
+      const canvasWidth = this.draw.node.clientWidth;
       this.canvasWidth = width > canvasWidth ? width : canvasWidth;
-      this.svgElement.width(canvasWidth);
-      this.svgElement.height(this.canvasHeight);
-    },
-    // 标注（背景高亮、大括号、文本等）
+      this.draw.css({ width: `${canvasWidth}px`, height: `${this.canvasHeight}px` });
+    }, // 标注（背景高亮、大括号、文本等）
     renderFragment(chunk, sizes, y) {
-      chunk.fragments.forEach(fragment => {
+      chunk.fragments.forEach((fragment) => {
         const span = this.data.spans[fragment.spanId];
         // const span = fragment.span;
         const spanDesc = this.spanTypes[span.type];
@@ -364,25 +363,29 @@ function render(Brat) {
 
         fragment.rect.attr('y', yy - Configuration.visual.margin.y - span.floor);
         // 绘制标注文本
-        fragment.group.text(this.data.spanAnnTexts[fragment.glyphedLabelText])
-          .attr({
-            x, y: y - span.floor, fill: fgColor,
-          });
+        fragment.group.text(this.data.spanAnnTexts[fragment.glyphedLabelText]).attr({
+          x,
+          y: y - span.floor,
+          fill: fgColor,
+        });
         // 绘制大括号
         if (fragment.drawCurly) {
           const curlyColor = chroma('grey').css();
           const bottom = yy + hh + Configuration.visual.margin.y - span.floor + 1;
-          const path = this.draw.path()
-            .M(fragment.curly.from, bottom + Configuration.visual.curlyHeight)
-            .curveC(fragment.curly.from, bottom, x, bottom + Configuration.visual.curlyHeight, x, bottom)
-            .curveC(x, bottom + Configuration.visual.curlyHeight, fragment.curly.to, bottom, fragment.curly.to, bottom + Configuration.visual.curlyHeight);
-          fragment.group.path(path._path).attr({ 'stroke': curlyColor }).addClass('curly');
+          let path = this.draw.path();
+          if (path instanceof Path) {
+            path = path
+              .M(fragment.curly.from, bottom + Configuration.visual.curlyHeight)
+              .curveC(fragment.curly.from, bottom, x, bottom + Configuration.visual.curlyHeight, x, bottom)
+              .curveC(x, bottom + Configuration.visual.curlyHeight, fragment.curly.to, bottom, fragment.curly.to, bottom + Configuration.visual.curlyHeight);
+            fragment.group.path(path._path).attr({ stroke: curlyColor }).addClass('curly');
+          }
         }
       });
     },
     // 文本高亮
-    renderArc(rows, sizes, fragmentHeights) {
-      const arrows = {};
+    renderArc(sizes, fragmentHeights) {
+      this.arrows = {};
       this.data.arcs.forEach((arc) => {
         // separate out possible numeric suffix from type
         const originSpan = this.data.spans[arc.origin];
@@ -393,7 +396,7 @@ function render(Brat) {
         const rightChunk = this.getChunkById(right.chunkId);
         const leftRow = leftChunk.row.index;
         const rightRow = rightChunk.row.index;
-        this.generateArrows(arrows, arcDesc);
+        this.generateArrows(arcDesc);
         // find the next height
         let height = this.findMaxFragmentHeight(fragmentHeights, left, right);
         const originChunk = this.getChunkById(originSpan.headFragment.chunkId);
@@ -402,7 +405,7 @@ function render(Brat) {
         const chunkReverse = ufoCatcher ? leftBox.x + leftBox.width / 2 < rightBox.x + rightBox.width / 2 : false;
 
         for (let rowIndex = leftRow; rowIndex <= rightRow; rowIndex++) {
-          const row = rows[rowIndex];
+          const row = this.rows[rowIndex];
           row.hasAnnotations = true;
           const arcGroup = row.arcs.group().attr({
             'data-from': arc.origin,
@@ -411,13 +414,12 @@ function render(Brat) {
           const from = rowIndex === leftRow ? leftBox.x + (chunkReverse ? 0 : leftBox.width) : OPTION.sentNumMargin;
           const to = rowIndex === rightRow ? rightBox.x + (chunkReverse ? rightBox.width : 0) : this.canvasWidth - 2 * Configuration.visual.margin.y;
           const originType = this.data.spans[arc.origin].type;
-          const arcLabels = Util.getArcLabels(this.spanTypes, originType, arc.type, this.relationTypesHash);
-          let labelText = Util.arcDisplayForm(this.spanTypes, originType, arc.type, this.relationTypesHash);
+          const arcLabels = Util.getArcLabels(this.spanTypes, originType, arc.type, this.relationTypes);
+          let labelText = arcLabels[0] || arc.type;
           if (Configuration.abbrevsOn && arcLabels) {
             let labelIdx = 1; // first abbreviation
-            const maxLength = (to - from) - (OPTION.arcSlant);
-            while (sizes.arcs.widths[labelText] > maxLength &&
-            arcLabels[labelIdx]) {
+            const maxLength = to - from - OPTION.arcSlant;
+            while (sizes.arcs.widths[labelText] > maxLength && arcLabels[labelIdx]) {
               labelText = arcLabels[labelIdx];
               labelIdx++;
             }
@@ -443,28 +445,27 @@ function render(Brat) {
           if (OPTION.roundCoordinates) {
             height = (height | 0) + 0.5;
           }
-          // debugger
           if (height > row.maxArcHeight) row.maxArcHeight = height;
-          this.drawLeftArc(arc, rows, rowIndex, arcGroup, height, arrows, textStart);
-          this.drawRightArc(arc, arrows, rowIndex, arcGroup, height, textEnd);
-        } // arc rows
-      }); // arcs
+          this.drawLeftArc(arc, rowIndex, arcGroup, height, textStart);
+          this.drawRightArc(arc, rowIndex, arcGroup, height, textEnd);
+        }
+      });
     },
     renderChunkRect(sizes) {
-      const lrChunkComp = function(chunk, a, b) {
+      const lrChunkComp = function (chunk, a, b) {
         const ac = chunk.fragments[a];
         const bc = chunk.fragments[b];
         const startDiff = Util.cmp(ac.from, bc.from);
         return startDiff !== 0 ? startDiff : Util.cmp(bc.to - bc.from, ac.to - ac.from);
       };
-      const rlChunkComp = function(chunk, a, b) {
+      const rlChunkComp = function (chunk, a, b) {
         const ac = chunk.fragments[a];
         const bc = chunk.fragments[b];
         const endDiff = Util.cmp(bc.to, ac.to);
         return endDiff !== 0 ? endDiff : Util.cmp(bc.to - bc.from, ac.to - ac.from);
       };
       const highlightGroup = this.highlightGroup;
-      this.data.chunks.forEach(chunk => {
+      this.data.chunks.forEach((chunk) => {
         if (chunk.fragments.length) {
           const orderedIdx = [];
           for (let i = chunk.fragments.length - 1; i >= 0; i--) {
@@ -514,7 +515,7 @@ function render(Brat) {
             c.nestingDepth = c.nestingDepthLR > c.nestingDepthRL ? c.nestingDepthLR : c.nestingDepthRL;
           }
           // Re-order by nesting height and draw in order
-          orderedIdx.sort(function(a, b) {
+          orderedIdx.sort(function (a, b) {
             return Util.cmp(chunk.fragments[b].nestingHeight, chunk.fragments[a].nestingHeight);
           });
 
@@ -538,18 +539,19 @@ function render(Brat) {
               w: fragment.curly.to - fragment.curly.from - 2 * xShrink,
               h: sizes.texts.height - 2 * yShrink - yStartTweak,
             };
-            highlightGroup.rect(fragment.highlightPos.w, fragment.highlightPos.h)
-              .attr({
-                x: fragment.highlightPos.x, y: fragment.highlightPos.y, fill: chroma(bgColor).alpha(0.25).css(), //opacity:1,
-                rx: OPTION.highlightRounding.x, ry: OPTION.highlightRounding.y,
-              });
+            highlightGroup.rect(fragment.highlightPos.w, fragment.highlightPos.h).attr({
+              x: fragment.highlightPos.x,
+              y: fragment.highlightPos.y,
+              fill: chroma(bgColor).alpha(0.25).css(), //opacity:1,
+              rx: OPTION.highlightRounding.x,
+              ry: OPTION.highlightRounding.y,
+            });
           }
         }
       });
     },
-    drawLeftArc: function(arc, rows, index, arcGroup, height, arrows, textStart) {
-      let path;
-      const row = rows[index];
+    drawLeftArc: function (arc, index, arcGroup, height, textStart) {
+      const row = this.rows[index];
       const originSpan = this.data.spans[arc.origin];
       const targetSpan = this.data.spans[arc.target];
       const leftToRight = originSpan.headFragment.towerId < targetSpan.headFragment.towerId;
@@ -558,12 +560,10 @@ function render(Brat) {
       const chunk = this.getChunkById(left.chunkId);
       const originChunk = this.getChunkById(originSpan.headFragment.chunkId);
       const targetChunk = this.getChunkById(targetSpan.headFragment.chunkId);
-      const leftRow = chunk.row.index;
       const ufoCatcher = originChunk.index === targetChunk.index;
       const chunkReverse = ufoCatcher ? leftBox.x + leftBox.width / 2 < rightBox.x + rightBox.width / 2 : void 0;
-      const ufoCatcherMod = ufoCatcher ? chunkReverse ? -0.5 : 0.5 : 1;
-      const from = index === leftRow ? leftBox.x + (chunkReverse ? 0 : leftBox.width) : OPTION.sentNumMargin;
-
+      const ufoCatcherMod = ufoCatcher ? (chunkReverse ? -0.5 : 0.5) : 1;
+      const from = index === chunk.row.index ? leftBox.x + (chunkReverse ? 0 : leftBox.width) : OPTION.sentNumMargin;
 
       if (OPTION.roundCoordinates) height = (height | 0) + 0.5;
       if (height > row.maxArcHeight) row.maxArcHeight = height;
@@ -571,10 +571,9 @@ function render(Brat) {
       const dashArray = get(arcDesc, 'dashArray');
       const color = defaultTo(get(arcDesc, 'color'), defaultTo(get(this.spanTypes, 'ARC_DEFAULT.color'), '#000000'));
       const myArrowHead = defaultTo(get(arcDesc, 'arrowHead'), get(this.spanTypes, 'ARC_DEFAULT.arrowHead'));
-      const arrowName = (leftToRight ? symmetric && myArrowHead || 'none' : myArrowHead || 'triangle,5') + ',' + color;
-      const arrowType = arrows[arrowName];
-      const arrowDecl = arrowType && ('url(#' + arrowType + ')');
-
+      const arrowName = (leftToRight ? (symmetric && myArrowHead) || 'none' : myArrowHead || 'triangle,5') + ',' + color;
+      const arrowType = this.arrows[arrowName];
+      const arrowDecl = arrowType && 'url(#' + arrowType + ')';
 
       let arrowAtLabelAdjust = 0;
       let labelArrowDecl = null;
@@ -583,134 +582,139 @@ function render(Brat) {
       if (myLabelArrowHead) {
         const labelArrowName = defaultTo(leftToRight ? (symmetric ? myLabelArrowHead : 'none') : myLabelArrowHead, 'triangle,5') + ',' + color;
         const labelArrow = labelArrowName.split(',');
-        arrowAtLabelAdjust = labelArrow[0] !== 'none' && parseInt(labelArrow[1], 10) || 0;
-        const labelArrowType = arrows[labelArrowName];
-        labelArrowDecl = labelArrowType && ('url(#' + labelArrowType + ')');
+        arrowAtLabelAdjust = (labelArrow[0] !== 'none' && parseInt(labelArrow[1], 10)) || 0;
+        const labelArrowType = this.arrows[labelArrowName];
+        labelArrowDecl = labelArrowType && 'url(#' + labelArrowType + ')';
         if (ufoCatcher) arrowAtLabelAdjust = -arrowAtLabelAdjust;
       }
       const arrowStart = textStart - arrowAtLabelAdjust;
-      path = this.draw.path().M(arrowStart, -height);
-      if (index === leftRow) {
-        let cornerX = from + ufoCatcherMod * OPTION.arcSlant;
-        if (!ufoCatcher && cornerX > arrowStart - 1) {
-          cornerX = arrowStart - 1;
-        }
-        if (OPTION.smoothArcCurves) {
-          const controlX = ufoCatcher ? cornerX + 2 * ufoCatcherMod * OPTION.reverseArcControlX : OPTION.smoothArcSteepness * from + (1 - OPTION.smoothArcSteepness) * cornerX;
-          let endY = leftBox.y + (leftToRight || arc.equiv ? leftBox.height / 2 : Configuration.visual.margin.y);
-          if (Math.abs(-height - endY) < 2 && Math.abs(cornerX - from) < 5) {
-            endY = -height;
+      let path = this.draw.path();
+      if (path instanceof Path) {
+        path = path.M(arrowStart, -height);
+        if (index === chunk.row.index) {
+          let cornerX = from + ufoCatcherMod * OPTION.arcSlant;
+          if (!ufoCatcher && cornerX > arrowStart - 1) {
+            cornerX = arrowStart - 1;
           }
-          path.line(cornerX, -height).curveQ(controlX, -height, from, endY);
+          if (OPTION.smoothArcCurves) {
+            const controlX = ufoCatcher ? cornerX + 2 * ufoCatcherMod * OPTION.reverseArcControlX : OPTION.smoothArcSteepness * from + (1 - OPTION.smoothArcSteepness) * cornerX;
+            let endY = leftBox.y + (leftToRight || arc.equiv ? leftBox.height / 2 : Configuration.visual.margin.y);
+            if (Math.abs(-height - endY) < 2 && Math.abs(cornerX - from) < 5) {
+              endY = -height;
+            }
+            path.line(cornerX, -height).curveQ(controlX, -height, from, endY);
+          } else {
+            path.line(cornerX, -height).line(from, leftBox.y + (leftToRight || arc.equiv ? leftBox.height / 2 : Configuration.visual.margin.y));
+          }
         } else {
-          path.line(cornerX, -height).line(from, leftBox.y + (leftToRight || arc.equiv ? leftBox.height / 2 : Configuration.visual.margin.y));
+          path.line(from, -height);
         }
-      } else {
-        path.line(from, -height);
+        arcGroup.path(path._path).attr({
+          'marker-end': arrowDecl,
+          'marker-start': labelArrowDecl,
+          style: 'stroke: ' + color,
+          'stroke-dasharray': dashArray,
+        });
       }
-      arcGroup.path(path._path).attr({
-        'marker-end': arrowDecl,
-        'marker-start': labelArrowDecl,
-        style: 'stroke: ' + color,
-        'stroke-dasharray': dashArray,
-      });
     },
-    drawRightArc: function(arc, arrows, index, arcGroup, height, textEnd) {
-      let path;
+    drawRightArc: function (arc, index, arcGroup, height, textEnd) {
       const originSpan = this.data.spans[arc.origin];
       const targetSpan = this.data.spans[arc.target];
       const arcDesc = this.resolveArcDesc(arc, originSpan);
       const { right, leftBox, rightBox } = this.getRowBBox(this.data, arc);
 
-
       const chunk = this.getChunkById(right.chunkId);
       const originChunk = this.getChunkById(originSpan.headFragment.chunkId);
       const targetChunk = this.getChunkById(targetSpan.headFragment.chunkId);
-      const rightRow = chunk.row.index;
       const ufoCatcher = originChunk.index === targetChunk.index;
       const chunkReverse = ufoCatcher ? leftBox.x + leftBox.width / 2 < rightBox.x + rightBox.width / 2 : void 0;
-      const ufoCatcherMod = ufoCatcher ? chunkReverse ? -0.5 : 0.5 : 1;
+      const ufoCatcherMod = ufoCatcher ? (chunkReverse ? -0.5 : 0.5) : 1;
       const leftToRight = originSpan.headFragment.towerId < targetSpan.headFragment.towerId;
       const myArrowHead = get(arcDesc, 'arrowHead', get(this.spanTypes, 'ARC_DEFAULT.arrowHead'));
       const symmetric = get(arcDesc, 'properties.symmetric');
       const dashArray = get(arcDesc, 'dashArray');
       const color = defaultTo(get(arcDesc, 'color'), defaultTo(get(this.spanTypes, 'ARC_DEFAULT.color'), '#000000'));
       const arrowName = defaultTo(leftToRight ? myArrowHead : symmetric && myArrowHead, leftToRight ? 'triangle,5' : 'none') + ',' + color;
-      const arrowType = arrows[arrowName];
-      const arrowDecl = arrowType && ('url(#' + arrowType + ')');
-      const to = index === rightRow ? rightBox.x + (chunkReverse ? rightBox.width : 0) : this.svgElement.width() - 2 * Configuration.visual.margin.y;
+      const arrowType = this.arrows[arrowName];
+      const arrowDecl = arrowType && 'url(#' + arrowType + ')';
+      const to = index === chunk.row.index ? rightBox.x + (chunkReverse ? rightBox.width : 0) : this.canvasWidth - 2 * Configuration.visual.margin.y;
 
       let arrowAtLabelAdjust = 0;
       let labelArrowDecl = null;
       const myLabelArrowHead = get(arcDesc, 'labelArrow', get(this.spanTypes, 'ARC_DEFAULT.labelArrow'));
 
       if (myLabelArrowHead) {
-        const labelArrowName = (leftToRight ? myLabelArrowHead || 'triangle,5' : symmetric && myLabelArrowHead || 'none') + ',' + color;
+        const labelArrowName = (leftToRight ? myLabelArrowHead || 'triangle,5' : (symmetric && myLabelArrowHead) || 'none') + ',' + color;
         const labelArrowSplit = labelArrowName.split(',');
-        arrowAtLabelAdjust = labelArrowSplit[0] !== 'none' && parseInt(labelArrowSplit[1], 10) || 0;
-        const labelArrowType = arrows[labelArrowName];
-        labelArrowDecl = labelArrowType && ('url(#' + labelArrowType + ')');
+        arrowAtLabelAdjust = (labelArrowSplit[0] !== 'none' && parseInt(labelArrowSplit[1], 10)) || 0;
+        const labelArrowType = this.arrows[labelArrowName];
+        labelArrowDecl = labelArrowType && 'url(#' + labelArrowType + ')';
         if (ufoCatcher) arrowAtLabelAdjust = -arrowAtLabelAdjust;
       }
       const arrowEnd = textEnd + arrowAtLabelAdjust;
-      path = this.draw.path().M(arrowEnd, -height);
-
-      if (index === rightRow) {
-        let cornerX = to - ufoCatcherMod * OPTION.arcSlant;
-        if (!ufoCatcher && cornerX < arrowEnd + 1) {
-          cornerX = arrowEnd + 1;
-        }
-        if (OPTION.smoothArcCurves) {
-          const controlX = ufoCatcher ? cornerX - 2 * ufoCatcherMod * OPTION.reverseArcControlX : OPTION.smoothArcSteepness * to + (1 - OPTION.smoothArcSteepness) * cornerX;
-          let endY = rightBox.y + (leftToRight && !arc.equiv ? Configuration.visual.margin.y : rightBox.height / 2);
-          if (Math.abs(-height - endY) < 2 &&
-            Math.abs(cornerX - to) < 5) {
-            endY = -height;
+      let path = this.draw.path();
+      if (path instanceof Path) {
+        path = path.M(arrowEnd, -height);
+        if (index === chunk.row.index) {
+          let cornerX = to - ufoCatcherMod * OPTION.arcSlant;
+          if (!ufoCatcher && cornerX < arrowEnd + 1) {
+            cornerX = arrowEnd + 1;
           }
-          path.line(cornerX, -height).curveQ(controlX, -height, to, endY);
+          if (OPTION.smoothArcCurves) {
+            const controlX = ufoCatcher ? cornerX - 2 * ufoCatcherMod * OPTION.reverseArcControlX : OPTION.smoothArcSteepness * to + (1 - OPTION.smoothArcSteepness) * cornerX;
+            let endY = rightBox.y + (leftToRight && !arc.equiv ? Configuration.visual.margin.y : rightBox.height / 2);
+            if (Math.abs(-height - endY) < 2 && Math.abs(cornerX - to) < 5) {
+              endY = -height;
+            }
+            path.line(cornerX, -height).curveQ(controlX, -height, to, endY);
+          } else {
+            path.line(cornerX, -height).line(to, rightBox.y + (leftToRight && !arc.equiv ? Configuration.visual.margin.y : rightBox.height / 2));
+          }
         } else {
-          path.line(cornerX, -height).line(to, rightBox.y + (leftToRight && !arc.equiv ? Configuration.visual.margin.y : rightBox.height / 2));
+          path.line(to, -height);
         }
-      } else {
-        path.line(to, -height);
+        arcGroup.path(path._path).attr({
+          'marker-end': arrowDecl,
+          'marker-start': labelArrowDecl,
+          style: 'stroke: ' + color,
+          'stroke-dasharray': dashArray,
+        });
       }
-      arcGroup.path(path._path).attr({
-        'marker-end': arrowDecl,
-        'marker-start': labelArrowDecl,
-        style: 'stroke: ' + color,
-        'stroke-dasharray': dashArray,
-      });
     },
-    adjustFragmentSizes: function(data) {
+    adjustFragmentSizes: function (data) {
       const towers = data.towers;
       for (let k in towers) {
-        const maxWidth = Math.max(...towers[k].map((fragment) => {
-          const width = data.sizes.fragments.widths[fragment.glyphedLabelText];
-          return width || 0;
-        }));
+        const maxWidth = Math.max(
+          ...towers[k].map((fragment) => {
+            const width = data.sizes.fragments.widths[fragment.glyphedLabelText];
+            return width || 0;
+          }),
+        );
         towers[k].forEach((fragment) => {
           fragment.width = maxWidth;
         });
       }
       return towers;
     },
-    translate: function(element, x, y) {
-      $(element.group.node).attr('transform', `translate(${x}, ${y})`);
+    translate: function (element, x, y) {
+      if (isElement(element.group)) {
+        element.group.setAttribute('transform', `translate(${x}, ${y})`);
+      } else {
+        element.group.translate(x, y);
+      }
       element.translation = { x: x, y: y };
     },
-    createDefs: function() {
-      const commentName = 'commentName';
-      this.svgElement.append('<!-- document: ' + commentName + ' -->');
+    createDefs: function () {
       this.defs = this.draw.defs();
       this.defs.element('filter', { id: 'Gaussian_Blur' }).element('feGaussianBlur', {
         in: 'SourceGraphic',
         stdDeviation: '2',
       });
     },
-    sortArcs: function(data, fragmentHeights) {
+    sortArcs: function (data, fragmentHeights) {
       // 预计算每个arc的 jumpHeight 和 heightSum
       const arcHeightSums = {};
-      data.arcs.forEach(arc => {
+      data.arcs.forEach((arc) => {
         arc.jumpHeight = this.calcJumpHeight(arc, data, fragmentHeights);
         arcHeightSums[arc.id] = data.spans[arc.origin].headFragment.height + data.spans[arc.target].headFragment.height;
       });
@@ -724,13 +728,13 @@ function render(Brat) {
         return data.spans[a.origin].headFragment.height - data.spans[b.origin].headFragment.height;
       });
     },
-    calcJumpHeight: function(arc, data, fragmentHeights) {
-      const fromFragment = data.spans[arc.origin].headFragment;
-      const toFragment = data.spans[arc.target].headFragment;
-      const fromChunk = this.getChunkById(fromFragment.chunkId);
-      const toChunk = this.getChunkById(toFragment.chunkId);
+    calcJumpHeight: function (arc, data, fragmentHeights) {
+      const fromFrag = data.spans[arc.origin].headFragment;
+      const toFrag = data.spans[arc.target].headFragment;
+      const fromChunk = this.getChunkById(fromFrag.chunkId);
+      const toChunk = this.getChunkById(toFrag.chunkId);
       // 确定 from 和 to
-      const [minTowerId, maxTowerId] = fromFragment.towerId <= toFragment.towerId ? [fromFragment.towerId, toFragment.towerId] : [toFragment.towerId, fromFragment.towerId];
+      const [minTowerId, maxTowerId] = fromFrag.towerId <= toFrag.towerId ? [fromFrag.towerId, toFrag.towerId] : [toFrag.towerId, fromFrag.towerId];
       let from, to;
       if (fromChunk.index === toChunk.index) {
         from = minTowerId;
@@ -745,7 +749,7 @@ function render(Brat) {
       }
       return jumpHeight;
     },
-    calcFloorAndReservations: function(span, floors, reservations, sizes) {
+    calcFloorAndReservations: function (span, floors, reservations, sizes) {
       const f1 = span.fragments[0];
       const f2 = span.fragments[span.fragments.length - 1];
       const x1 = (f1.curly.from + f1.curly.to - f1.width) / 2 - Configuration.visual.margin.x;
@@ -756,7 +760,6 @@ function render(Brat) {
       let outside = true;
       const chunk1 = this.getChunkById(f1.chunkId);
       const chunk2 = this.getChunkById(f2.chunkId);
-
 
       floors.forEach((floor) => {
         let a = true;
@@ -801,20 +804,20 @@ function render(Brat) {
       }
       span.floor = carpet + curlyHeight;
     },
-    makeNewFloorIfNeeded: function(reservations, floors, floor) {
-      let floorNo = floors.findIndex(flr => flr === floor);
+    makeNewFloorIfNeeded: function (reservations, floors, floor) {
+      let floorNo = floors.findIndex((flr) => flr === floor);
       if (floorNo === -1) {
         floors.push(floor);
         floors.sort(Util.cmp);
-        floorNo = floors.findIndex(flr => flr === floor);
+        floorNo = floors.findIndex((flr) => flr === floor);
 
         if (floorNo !== 0) {
           const parquet = floors[floorNo - 1];
-          reservations.forEach(function(reservationsForDay) {
+          reservations.forEach(function (reservationsForDay) {
             if (reservationsForDay && reservationsForDay[parquet]) {
               const footRoom = floor - parquet;
 
-              reservationsForDay[parquet].forEach(function([res0, res1, res2]) {
+              reservationsForDay[parquet].forEach(function ([res0, res1, res2]) {
                 if (res2 > footRoom) {
                   if (!reservationsForDay[floor]) {
                     reservationsForDay[floor] = [];
@@ -828,7 +831,7 @@ function render(Brat) {
       }
       return floorNo;
     },
-    findMaxFragmentHeight: function(fragmentHeights, left, right) {
+    findMaxFragmentHeight: function (fragmentHeights, left, right) {
       let height = 0;
       let fromIndex2, toIndex2;
       const leftChunk = this.getChunkById(left.chunkId);
@@ -850,7 +853,7 @@ function render(Brat) {
       height += 0.5;
       return height;
     },
-    resolveArcDesc: function(arc, originSpan) {
+    resolveArcDesc: function (arc, originSpan) {
       let noNumArcType;
       let splitArcType;
       if (arc.type) {
@@ -859,29 +862,29 @@ function render(Brat) {
       }
       let arcDesc;
       const spanDesc = this.spanTypes[originSpan.type];
-      get(spanDesc, 'arcs', []).forEach(item => {
+      get(spanDesc, 'arcs', []).forEach((item) => {
         if (item.type === arc.type) {
           arcDesc = item;
         }
       });
       if (!arcDesc && noNumArcType && noNumArcType !== arc.type) {
-        get(spanDesc, 'arcs', []).forEach(item => {
+        get(spanDesc, 'arcs', []).forEach((item) => {
           if (item.type === noNumArcType) {
             arcDesc = item;
           }
         });
       }
       if (!arcDesc) {
-        arcDesc = $.extend({}, this.relationTypesHash[arc.type] || this.relationTypesHash[noNumArcType]);
+        arcDesc = Object.assign({}, this.relationTypes[arc.type] || this.relationTypes[noNumArcType]);
       }
       return arcDesc;
     },
-    drawArcText: function(arcGroup, arc, arcDesc, from, to, labelText, height, baseline_shift) {
+    drawArcText: function (arcGroup, arc, arcDesc, from, to, labelText, height, baseline_shift) {
       const color = defaultTo(get(arcDesc, 'color'), defaultTo(get(this.spanTypes, 'ARC_DEFAULT.color'), '#000000'));
       let splitArcType;
       if (arc.type) splitArcType = arc.type.match(/^(.*?)(\d*)$/);
       const options = {
-        'fill': color,
+        fill: color,
         'data-arc-role': arc.type,
         'data-arc-origin': arc.origin,
         'data-arc-target': arc.target,
@@ -894,10 +897,11 @@ function render(Brat) {
       } else {
         const splitLabelText = labelText.match(/^(.*?)(\d*)$/);
         const noNumLabelText = splitLabelText[1];
-        svgText = this.draw.text(null).tspan(noNumLabelText).attr(options);
-        const subscriptSettings = { 'dy': '0.3em', 'font-size': '80%' };
-        $.extend(subscriptSettings, options);
-        svgText.tspan(splitArcType[2], subscriptSettings);
+        const subSettings = Object.assign({ dy: '0.3em', 'font-size': '80%' }, options || {});
+        svgText = this.draw.text((add) => {
+          add.tspan(noNumLabelText).attr(options);
+          add.tspan(splitArcType[2]).attr(subSettings);
+        });
       }
       // const baseline_shift = sizes.arcs.height / 4;
       return arcGroup.text(svgText).attr({
@@ -906,7 +910,7 @@ function render(Brat) {
         ...options,
       });
     },
-    getRowBBox: function(data, arc) {
+    getRowBBox: function (data, arc) {
       const originSpan = data.spans[arc.origin];
       const targetSpan = data.spans[arc.target];
       const leftToRight = originSpan.headFragment.towerId < targetSpan.headFragment.towerId;
@@ -920,24 +924,24 @@ function render(Brat) {
       }
       return { left, right, leftBox: this.rowBBox(left), rightBox: this.rowBBox(right) };
     },
-    rowBBox: function(span) {
-      const box = $.extend({}, span.rectBox); // clone
+    rowBBox: function (span) {
+      const box = Object.assign({}, span.rectBox); // clone
       const chunk = this.getChunkById(span.chunkId);
       const translation = chunk.translation;
       box.x += translation.x;
       box.y += translation.y;
       return box;
     },
-    getSizes: function() {
+    getSizes: function () {
       const chunkTexts = {}; // set of span texts
-      this.data.chunks.forEach(chunk => {
+      this.data.chunks.forEach((chunk) => {
         chunk.row = undefined; // reset
         if (!(chunk.text in chunkTexts)) chunkTexts[chunk.text] = [];
         const text = chunkTexts[chunk.text];
         text.push.apply(text, chunk.fragments);
       });
       const textSizes = this.measureText(chunkTexts, undefined, (fragment, text) => {
-        const include = ['id', 'spanId', 'from', 'to'].every(key => fragment[key] !== undefined);
+        const include = ['id', 'spanId', 'from', 'to'].every((key) => fragment[key] !== undefined);
         if (include) {
           // let firstChar = fragment.from - fragment.chunk?.from || 0;
           let firstChar = fragment.from - fragment.from || 0;
@@ -947,13 +951,16 @@ function render(Brat) {
           }
           const startPos = text.getStartPositionOfChar(firstChar).x;
           const lastChar = fragment.to - fragment.from - 1;
-          const endPos = (lastChar < 0) ? startPos : text.getEndPositionOfChar(lastChar).x;
+          const endPos = lastChar < 0 ? startPos : text.getEndPositionOfChar(lastChar).x;
           fragment.curly = {
-            from: startPos, to: endPos,
+            from: startPos,
+            to: endPos,
           };
-        } else { // it's markedText [id, start?, char#, offset]
+        } else {
+          // it's markedText [id, start?, char#, offset]
           if (fragment[2] < 0) fragment[2] = 0;
-          if (!fragment[2]) { // start
+          if (!fragment[2]) {
+            // start
             fragment[3] = text.getStartPositionOfChar(fragment[2]).x;
           } else {
             fragment[3] = text.getEndPositionOfChar(fragment[2] - 1).x + 1;
@@ -963,70 +970,72 @@ function render(Brat) {
       // get the fragment annotation text sizes
       const fragmentTexts = {};
       let noSpans = true;
-      Object.values(this.data.spans).forEach(span => {
-        span.fragments.forEach(fragment => {
+      Object.values(this.data.spans).forEach((span) => {
+        span.fragments.forEach((fragment) => {
           fragmentTexts[fragment.glyphedLabelText] = true;
           noSpans = false;
         });
       });
       if (noSpans) fragmentTexts.$ = true; // dummy so we can at least get the height
-      const fragmentSizes = this.measureText(fragmentTexts, { 'class': 'span' });
+      const fragmentSizes = this.measureText(fragmentTexts, { class: 'span' });
       //
       const arcTexts = {};
       this.data.arcs.forEach((arc) => {
-        const labels = Util.getArcLabels(this.spanTypes, this.data.spans[arc.origin].type, arc.type, this.relationTypesHash) || [arc.type];
+        const labels = Util.getArcLabels(this.spanTypes, this.data.spans[arc.origin].type, arc.type, this.relationTypes) || [arc.type];
         labels.forEach((label) => {
           arcTexts[label] = true;
         });
       });
       const arcs = this.measureText(arcTexts, { class: 'arcs' });
       return {
-        texts: textSizes, fragments: fragmentSizes, arcs,
+        texts: textSizes,
+        fragments: fragmentSizes,
+        arcs,
       };
     },
     measureText(textsHash, options, callback) {
       options = options === undefined ? {} : options;
-      const textMeasureGroup = this.draw.group().attr(options);
+      const group = this.draw.group().attr(options);
       for (const text in textsHash) {
-        textMeasureGroup.text(text).attr({ x: 0, y: 0 });
+        group.text(text).attr({ x: 0, y: 0 });
       }
       // measuring goes on here
       const widths = {};
-      textMeasureGroup.find('text').forEach((svgText) => {
+      group.find('text').forEach((svgText) => {
         const text = svgText.text();
         widths[text] = svgText.node.getComputedTextLength();
         if (callback) {
-          textsHash[text].forEach(object => {
+          textsHash[text].forEach((object) => {
             callback(object, svgText.node);
           });
         }
       });
-      const bbox = textMeasureGroup.bbox();
-      textMeasureGroup.remove();
+      const bbox = group.bbox();
+      group.remove();
       return { widths, height: bbox.height, y: bbox.y };
     },
-    generateArrows: function(arrows, arcDesc) {
+    generateArrows: function (arcDesc) {
       const color = defaultTo(get(arcDesc, 'color'), defaultTo(get(this.spanTypes, 'ARC_DEFAULT.color'), '#000000'));
       const arrowHead = defaultTo(get(arcDesc, 'arrowHead'), defaultTo(get(this.spanTypes, 'ARC_DEFAULT.arrowHead'), 'triangle,5')) + ',' + color;
       const labelArrowHead = defaultTo(get(arcDesc, 'labelArrow'), defaultTo(get(this.spanTypes, 'ARC_DEFAULT.labelArrow'), 'triangle,5')) + ',' + color;
-      if (!arrows[arrowHead]) {
+      if (!this.arrows[arrowHead]) {
         const arrow = this._makeArrow(arrowHead);
-        if (arrow) arrows[arrowHead] = arrow;
+        if (arrow) this.arrows[arrowHead] = arrow;
       }
-      if (!arrows[labelArrowHead]) {
+      if (!this.arrows[labelArrowHead]) {
         const arrow = this._makeArrow(labelArrowHead);
-        if (arrow) arrows[labelArrowHead] = arrow;
+        if (arrow) this.arrows[labelArrowHead] = arrow;
       }
     },
-    _makeArrow: function(spec) {
+    _makeArrow: function (spec) {
       const parsedSpec = spec.split(',');
       const type = parsedSpec[0];
       if (type === 'none') return;
       let width;
       let height;
       let color;
-      if ($.isNumeric(parsedSpec[1]) && parsedSpec[2]) {
-        if ($.isNumeric(parsedSpec[2]) && parsedSpec[3]) {
+      if (isNumber(parsedSpec[1]) && parsedSpec[2]) {
+        if (isNumber(parsedSpec[2]) && parsedSpec[3]) {
           width = parsedSpec[1];
           height = parsedSpec[2];
           color = parsedSpec[3] || 'black';
@@ -1039,11 +1048,8 @@ function render(Brat) {
         color = parsedSpec[1] || 'black';
       }
       const arrowId = 'arrow_' + spec.replace(/#/g, '').replace(/,/g, '_');
-
       let arrow;
       if (type === 'triangle') {
-        // parent id, refX, refY, mWidth, mHeight, orient, settings
-
         arrow = new Marker({
           id: arrowId,
           refX: width,
@@ -1051,9 +1057,15 @@ function render(Brat) {
           markerWidth: width,
           markerHeight: height,
           orient: 'auto',
-          markerUnits: 'strokeWidth', 'fill': color,
+          markerUnits: 'strokeWidth',
+          fill: color,
         });
-        arrow.polyline([[0, 0], [width, height / 2], [0, height], [width / 12, height / 2]]);
+        arrow.polyline([
+          [0, 0],
+          [width, height / 2],
+          [0, height],
+          [width / 12, height / 2],
+        ]);
         arrow.addTo(this.defs);
       }
       return arrowId;
