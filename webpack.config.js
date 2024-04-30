@@ -6,8 +6,6 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ESLintWebpackPlugin = require('eslint-webpack-plugin');
 
 const isProduction = process.env.NODE_ENV === 'production';
-const stylesHandler = MiniCssExtractPlugin.loader;
-
 const config = {
   devtool: 'source-map',
   entry: './src/index.js',
@@ -40,7 +38,7 @@ const config = {
       },
       {
         test: /\.css$/i,
-        use: [stylesHandler, 'css-loader', 'postcss-loader'],
+        use: [MiniCssExtractPlugin.loader, 'css-loader', 'postcss-loader'],
       },
       {
         test: /\.(eot|svg|ttf|woff|woff2|png|jpg|gif)$/i,
@@ -48,7 +46,7 @@ const config = {
       },
       {
         test: /\.scss$/,
-        use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader', 'postcss-loader'],
+        use: [MiniCssExtractPlugin.loader, 'css-loader', 'postcss-loader', 'sass-loader'],
       },
       {
         mimetype: 'image/svg+xml',

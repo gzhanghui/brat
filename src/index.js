@@ -1,11 +1,11 @@
-import { warn } from './util/debug';
 import { Path, SVG } from '@svgdotjs/svg.js';
 import { get, orderBy, extend } from 'lodash';
+import pathMixins from './util/svg.path';
 import { Arc, Chunk, DocumentData, EventDesc, Span } from './class';
 import Util from './util';
 import render from './render';
 import behaviors from './event';
-import pathMixins from './util/svg.path';
+import { warn } from './util/debug';
 import './assets/index.scss';
 
 pathMixins(Path);
@@ -20,11 +20,7 @@ behaviors(Brat);
 extend(Brat.prototype, {
   _init: function () {
     this.draw = SVG().addClass('canvas').addTo('#svg');
-    console.log(this.draw);
     this.ajax(this.setData.bind(this));
-    this.draw.on('click', (e) => {
-      console.log(e);
-    });
     this.bindEvent();
   },
   ajax: function (callback) {

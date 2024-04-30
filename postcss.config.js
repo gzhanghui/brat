@@ -6,8 +6,10 @@ module.exports = {
     ['autoprefixer'],
     [
       purgecss({
-        content: [`./public/**/*.ejs`, `./src/**/*.js`, `./src/assets/**/*.scss`],
+        content: ['./src/**/*.js'],
         keyframes: true,
+        variables: true,
+        fontFace: true,
       }),
     ],
   ],
