@@ -81,18 +81,16 @@ class Popper {
     const element = new Element(document.createElement('div'));
     element.addClass('position-fixed w-80 alert alert-primary animate__animated').attr('id', 'floating');
     element.node.innerHTML = `<div class="nusp-alert-title font-normal flex items-center text-sm">
-                 <svg  xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-info-circle mr-2" viewBox="0 0 16 16">
-                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"></path>
-                    <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0"></path>
-                  </svg>
+               <i class="bi-alarm"></i>
               提示
             </div>
-            <div class="nusp-alert-content pt-1 font-normal text-[13px]">
+            <div class="nusp-alert-content">
               <div class="nusp-alert-description">在繁华的都市中，我们追逐着梦想，不畏艰难，勇往直前。汗水与努力铺就成功之路，每一次挑战都是成长的契机。让我们携手前行，共创辉煌未来。
           </div>
             </div>`;
     document.body.appendChild(element.node);
     this.element = element;
+    this.element.hide();
   }
 }
 

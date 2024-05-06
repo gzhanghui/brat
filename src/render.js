@@ -280,7 +280,7 @@ function render(Brat) {
         });
       }
       lineNumGroup.line(OPTION.sentNumMargin, 0, OPTION.sentNumMargin, y).stroke({
-        color: '#f06',
+        color: '#dee2e6',
         width: 1,
         linecap: 'round',
       });

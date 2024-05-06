@@ -21,32 +21,39 @@
 #svg {
   margin: 34px auto 100px;
   padding: 20px;
-  svg.canvas{
+  svg.canvas {
     width: 100%;
     height: 1px;
-    border: 1px solid #7fa2ff;
-    font-size: 15px;
+    border: 1px solid  rgba(var(--bs-primary-rgb), .75);
   }
-}
-
-text {
-  font-size: 13px;
-  font-family: 'Liberation Sans', Verdana, Arial, Helvetica, sans-serif;
-}
-
-path {
-  pointer-events: none;
-}
-
-.span text {
-  font-size: 10px;
-  text-anchor: middle;
-  font-family: 'PT Sans Caption', sans-serif;
-  pointer-events: none;
-}
-
-text[data-arc-role] {
-  user-select: none;
+  text {
+    font-size: 14px;
+    font-family: 'Liberation Sans', Verdana, Arial, Helvetica, sans-serif;
+  }
+  text[data-arc-role] {
+    user-select: none;
+  }
+  path {
+    pointer-events: none;
+  }
+  .span {
+    text {
+      font-size: 10px;
+      text-anchor: middle;
+      font-family: 'PT Sans Caption', sans-serif;
+      pointer-events: none;
+    }
+    path {
+      fill: none;
+      &.curly {
+        stroke-width: 0.5;
+      }
+      &.boxcross {
+        stroke: black;
+        opacity: 0.5;
+      }
+    }
+  }
 }
 
 .glyph {
@@ -60,19 +67,6 @@ rect.Normalized {
 
 rect.shadow_EditHighlight {
   fill: #ffff99;
-}
-
-.span path {
-  fill: none;
-}
-
-.span path.curly {
-  stroke-width: 0.5;
-}
-
-.span path.boxcross {
-  stroke: black;
-  opacity: 0.5;
 }
 
 .arcs path {
@@ -120,7 +114,7 @@ rect.shadow_EditHighlight {
 
 .background1 {
   stroke: none;
-  fill: #eeeeee;
+  fill: rgba(233,236,239,0.85);
 }
 
 .sentnum text {
@@ -175,7 +169,7 @@ $shadow-colors: (
   }
 }
 
-#commentpopup {
+.popup {
   font-family: 'Liberation Sans', Verdana, Arial, Helvetica, sans-serif;
   position: fixed;
   top: 0;
@@ -193,7 +187,7 @@ $shadow-colors: (
 }
 
 // 定义一个映射来存储各类评论的状态与对应的颜色
-$comment-colors: (
+$popup-colors: (
   'False_positive': #ff4141,
   'AddedAnnotation': #ffcccc,
   'ChangedAnnotation': #ffcccc,
@@ -207,8 +201,8 @@ $comment-colors: (
   'AnnotationUnconfirmed': #ddddff,
 );
 
-@each $comment-type, $color in $comment-colors {
-  #commentpopup.comment_#{$comment-type} {
+@each $popup-type, $color in $popup-colors {
+  .popup.comment_#{$popup-type} {
     background-color: $color;
   }
 }

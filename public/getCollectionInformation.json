@@ -1,7 +1,7 @@
 {
     "protocol": 1,
-    "description": "Small sample of data for BioNLP Shared Task 2011 Main Task - Epigenetics and Post-translational Modifications (EPI)\n\n- Contains 20 PubMed abstracts and their annotations.\n\n- For format details, please refer to the shared task homepage.\n  http://sites.google.com/site/bionlpst/\n\nHistory:\n\n 1 Dec 2010: initial version released.\n\n14 Jan 2011: first revision released: \n   - manual revision of triggers (especially for Catalysis), \"GPI anchor\n     attachment\" events, and a small number of errors in annotation.\n   - automatic revision of references to entities with Equivs.\n   - Equivs for non-Protein entities included.\n\nAuthors:\n\nBioNLP Shared Task 2011 organizers,\nbionlp-st@googlegroups.com\nhttp://sites.google.com/site/bionlpst/\n",
-    "parent": "examples/BioNLP-ST_2011",
+    "description": null,
+    "parent": "",
     "disambiguator_config": [],
     "header": [
         [
@@ -34,770 +34,437 @@
         {
             "borderColor": "darken",
             "normalizations": [],
-            "name": "Catalysis",
-            "arcs": [
+            "name": "Life",
+            "labels": null,
+            "children": [
                 {
-                    "arrowHead": "triangle,5",
-                    "color": "black",
-                    "labels": [
-                        "Theme",
-                        "Th"
+                    "borderColor": "darken",
+                    "normalizations": [],
+                    "name": "Be born",
+                    "arcs": [
+                        {
+                            "color": "black",
+                            "arrowHead": "triangle,5",
+                            "labels": [
+                                "Person"
+                            ],
+                            "type": "Person-Arg",
+                            "targets": [
+                                "Person"
+                            ]
+                        },
+                        {
+                            "color": "black",
+                            "arrowHead": "triangle,5",
+                            "labels": [
+                                "Place"
+                            ],
+                            "type": "Place-Arg",
+                            "targets": [
+                                "GPE"
+                            ]
+                        }
                     ],
-                    "hotkey": "T",
-                    "type": "Theme",
-                    "targets": [
-                        "Catalysis",
-                        "DNA_methylation",
-                        "DNA_demethylation",
-                        "Acetylation",
-                        "Methylation",
-                        "Glycosylation",
-                        "Hydroxylation",
-                        "Phosphorylation",
-                        "Ubiquitination",
-                        "Deacetylation",
-                        "Demethylation",
-                        "Deglycosylation",
-                        "Dehydroxylation",
-                        "Dephosphorylation",
-                        "Deubiquitination"
-                    ]
+                    "labels": [
+                        "Be born"
+                    ],
+                    "children": [],
+                    "unused": false,
+                    "bgColor": "lightgreen",
+                    "attributes": [
+                        "Negation",
+                        "Confidence"
+                    ],
+                    "type": "Be-born",
+                    "fgColor": "black"
                 },
                 {
-                    "color": "#007700",
-                    "arrowHead": "triangle,5",
-                    "labels": [
-                        "Cause",
-                        "Ca"
+                    "borderColor": "darken",
+                    "normalizations": [],
+                    "name": "Marry",
+                    "arcs": [
+                        {
+                            "color": "black",
+                            "arrowHead": "triangle,5",
+                            "labels": [
+                                "Person"
+                            ],
+                            "type": "Person-Arg",
+                            "targets": [
+                                "Person"
+                            ]
+                        },
+                        {
+                            "color": "black",
+                            "arrowHead": "triangle,5",
+                            "labels": [
+                                "Place"
+                            ],
+                            "type": "Place-Arg",
+                            "targets": [
+                                "GPE"
+                            ]
+                        }
                     ],
-                    "type": "Cause",
-                    "targets": [
-                        "Protein"
-                    ]
-                }
-            ],
-            "labels": [
-                "Catalysis",
-                "Catal"
-            ],
-            "children": [],
-            "unused": false,
-            "bgColor": "#e0ff00",
-            "hotkey": "C",
-            "attributes": [
-                "Negation",
-                "Speculation"
-            ],
-            "type": "Catalysis",
-            "fgColor": "black"
-        },
-        null,
-        {
-            "borderColor": "darken",
-            "normalizations": [],
-            "name": "DNA methylation",
-            "arcs": [
-                {
-                    "arrowHead": "triangle,5",
-                    "color": "black",
-                    "labels": [
-                        "Theme",
-                        "Th"
+                    "labels": null,
+                    "children": [],
+                    "unused": false,
+                    "bgColor": "lightgreen",
+                    "attributes": [
+                        "Negation",
+                        "Confidence"
                     ],
-                    "hotkey": "T",
-                    "type": "Theme",
-                    "targets": [
-                        "Protein"
-                    ]
+                    "type": "Marry",
+                    "fgColor": "black"
                 },
                 {
-                    "color": "#0000aa",
-                    "arrowHead": "triangle,5",
-                    "labels": [
-                        "Site",
-                        "Si"
+                    "borderColor": "darken",
+                    "normalizations": [],
+                    "name": "Divorce",
+                    "arcs": [
+                        {
+                            "color": "black",
+                            "arrowHead": "triangle,5",
+                            "labels": [
+                                "Person"
+                            ],
+                            "type": "Person-Arg",
+                            "targets": [
+                                "Person"
+                            ]
+                        },
+                        {
+                            "color": "black",
+                            "arrowHead": "triangle,5",
+                            "labels": [
+                                "Place"
+                            ],
+                            "type": "Place-Arg",
+                            "targets": [
+                                "GPE"
+                            ]
+                        }
                     ],
-                    "type": "Site",
-                    "targets": [
-                        "Entity"
-                    ]
+                    "labels": null,
+                    "children": [],
+                    "unused": false,
+                    "bgColor": "lightgreen",
+                    "attributes": [
+                        "Negation",
+                        "Confidence"
+                    ],
+                    "type": "Divorce",
+                    "fgColor": "black"
+                },
+                {
+                    "borderColor": "darken",
+                    "normalizations": [],
+                    "name": "Die",
+                    "arcs": [
+                        {
+                            "color": "black",
+                            "arrowHead": "triangle,5",
+                            "labels": [
+                                "Person"
+                            ],
+                            "type": "Person-Arg",
+                            "targets": [
+                                "Person"
+                            ]
+                        },
+                        {
+                            "color": "black",
+                            "arrowHead": "triangle,5",
+                            "labels": [
+                                "Agent"
+                            ],
+                            "type": "Agent-Arg",
+                            "targets": [
+                                "Person",
+                                "Organization",
+                                "GPE"
+                            ]
+                        },
+                        {
+                            "color": "black",
+                            "arrowHead": "triangle,5",
+                            "labels": [
+                                "Place"
+                            ],
+                            "type": "Place-Arg",
+                            "targets": [
+                                "GPE"
+                            ]
+                        }
+                    ],
+                    "labels": null,
+                    "children": [],
+                    "unused": false,
+                    "bgColor": "lightgreen",
+                    "attributes": [
+                        "Negation",
+                        "Confidence"
+                    ],
+                    "type": "Die",
+                    "fgColor": "black"
                 }
             ],
-            "labels": [
-                "DNA methylation",
-                "DNA meth"
-            ],
-            "children": [],
-            "unused": false,
+            "unused": true,
             "bgColor": "lightgreen",
             "attributes": [
                 "Negation",
-                "Speculation"
+                "Confidence"
             ],
-            "type": "DNA_methylation",
+            "type": "Life",
             "fgColor": "black"
         },
         {
             "borderColor": "darken",
             "normalizations": [],
-            "name": "DNA demethylation",
-            "arcs": [
+            "name": "Transaction",
+            "labels": null,
+            "children": [
                 {
-                    "arrowHead": "triangle,5",
-                    "color": "black",
-                    "labels": [
-                        "Theme",
-                        "Th"
+                    "borderColor": "darken",
+                    "normalizations": [],
+                    "name": "Transfer ownership",
+                    "arcs": [
+                        {
+                            "color": "black",
+                            "arrowHead": "triangle,5",
+                            "labels": [
+                                "Buyer"
+                            ],
+                            "type": "Buyer-Arg",
+                            "targets": [
+                                "Person",
+                                "Organization",
+                                "GPE"
+                            ]
+                        },
+                        {
+                            "color": "black",
+                            "arrowHead": "triangle,5",
+                            "labels": [
+                                "Seller"
+                            ],
+                            "type": "Seller-Arg",
+                            "targets": [
+                                "Person",
+                                "Organization",
+                                "GPE"
+                            ]
+                        },
+                        {
+                            "color": "black",
+                            "arrowHead": "triangle,5",
+                            "labels": [
+                                "Artifact"
+                            ],
+                            "type": "Artifact-Arg",
+                            "targets": [
+                                "Organization"
+                            ]
+                        }
                     ],
-                    "hotkey": "T",
-                    "type": "Theme",
-                    "targets": [
-                        "Protein"
-                    ]
+                    "labels": [
+                        "Transfer ownership"
+                    ],
+                    "children": [],
+                    "unused": false,
+                    "bgColor": "lightgreen",
+                    "attributes": [
+                        "Negation",
+                        "Confidence"
+                    ],
+                    "type": "Transfer-ownership",
+                    "fgColor": "black"
                 },
                 {
-                    "color": "#0000aa",
-                    "arrowHead": "triangle,5",
-                    "labels": [
-                        "Site",
-                        "Si"
+                    "borderColor": "darken",
+                    "normalizations": [],
+                    "name": "Transfer money",
+                    "arcs": [
+                        {
+                            "color": "black",
+                            "arrowHead": "triangle,5",
+                            "labels": [
+                                "Giver"
+                            ],
+                            "type": "Giver-Arg",
+                            "targets": [
+                                "Person",
+                                "Organization",
+                                "GPE"
+                            ]
+                        },
+                        {
+                            "color": "black",
+                            "arrowHead": "triangle,5",
+                            "labels": [
+                                "Recipient"
+                            ],
+                            "type": "Recipient-Arg",
+                            "targets": [
+                                "Person",
+                                "Organization",
+                                "GPE"
+                            ]
+                        },
+                        {
+                            "color": "black",
+                            "arrowHead": "triangle,5",
+                            "labels": [
+                                "Beneficiary"
+                            ],
+                            "type": "Beneficiary-Arg",
+                            "targets": [
+                                "Person",
+                                "Organization",
+                                "GPE"
+                            ]
+                        }
                     ],
-                    "type": "Site",
-                    "targets": [
-                        "Entity"
-                    ]
+                    "labels": [
+                        "Transfer money"
+                    ],
+                    "children": [],
+                    "unused": false,
+                    "bgColor": "lightgreen",
+                    "attributes": [
+                        "Negation",
+                        "Confidence"
+                    ],
+                    "type": "Transfer-money",
+                    "fgColor": "black"
                 }
             ],
-            "labels": [
-                "DNA demethylation",
-                "DNA -meth"
-            ],
-            "children": [],
-            "unused": false,
-            "bgColor": "#18c59a",
-            "attributes": [
-                "Negation",
-                "Speculation"
-            ],
-            "type": "DNA_demethylation",
-            "fgColor": "black"
-        },
-        null,
-        {
-            "borderColor": "darken",
-            "normalizations": [],
-            "name": "Acetylation",
-            "arcs": [
-                {
-                    "arrowHead": "triangle,5",
-                    "color": "black",
-                    "labels": [
-                        "Theme",
-                        "Th"
-                    ],
-                    "hotkey": "T",
-                    "type": "Theme",
-                    "targets": [
-                        "Protein"
-                    ]
-                },
-                {
-                    "color": "#0000aa",
-                    "arrowHead": "triangle,5",
-                    "labels": [
-                        "Site",
-                        "Si"
-                    ],
-                    "type": "Site",
-                    "targets": [
-                        "Entity"
-                    ]
-                },
-                {
-                    "color": "#303030",
-                    "arrowHead": "triangle,5",
-                    "labels": [
-                        "Contextgene",
-                        "CGn"
-                    ],
-                    "type": "Contextgene",
-                    "targets": [
-                        "Protein"
-                    ]
-                }
-            ],
-            "labels": [
-                "Acetylation",
-                "Acet"
-            ],
-            "children": [],
-            "unused": false,
-            "bgColor": "lightgreen",
-            "hotkey": "A",
-            "attributes": [
-                "Negation",
-                "Speculation"
-            ],
-            "type": "Acetylation",
-            "fgColor": "black"
-        },
-        {
-            "borderColor": "darken",
-            "normalizations": [],
-            "name": "Methylation",
-            "arcs": [
-                {
-                    "arrowHead": "triangle,5",
-                    "color": "black",
-                    "labels": [
-                        "Theme",
-                        "Th"
-                    ],
-                    "hotkey": "T",
-                    "type": "Theme",
-                    "targets": [
-                        "Protein"
-                    ]
-                },
-                {
-                    "color": "#0000aa",
-                    "arrowHead": "triangle,5",
-                    "labels": [
-                        "Site",
-                        "Si"
-                    ],
-                    "type": "Site",
-                    "targets": [
-                        "Entity"
-                    ]
-                },
-                {
-                    "color": "#303030",
-                    "arrowHead": "triangle,5",
-                    "labels": [
-                        "Contextgene",
-                        "CGn"
-                    ],
-                    "type": "Contextgene",
-                    "targets": [
-                        "Protein"
-                    ]
-                }
-            ],
-            "labels": [
-                "Methylation",
-                "Meth"
-            ],
-            "children": [],
-            "unused": false,
-            "bgColor": "lightgreen",
-            "hotkey": "M",
-            "attributes": [
-                "Negation",
-                "Speculation"
-            ],
-            "type": "Methylation",
-            "fgColor": "black"
-        },
-        {
-            "borderColor": "darken",
-            "normalizations": [],
-            "name": "Glycosylation",
-            "arcs": [
-                {
-                    "arrowHead": "triangle,5",
-                    "color": "black",
-                    "labels": [
-                        "Theme",
-                        "Th"
-                    ],
-                    "hotkey": "T",
-                    "type": "Theme",
-                    "targets": [
-                        "Protein"
-                    ]
-                },
-                {
-                    "color": "#0000aa",
-                    "arrowHead": "triangle,5",
-                    "labels": [
-                        "Site",
-                        "Si"
-                    ],
-                    "type": "Site",
-                    "targets": [
-                        "Entity"
-                    ]
-                },
-                {
-                    "color": "#303030",
-                    "arrowHead": "triangle,5",
-                    "labels": [
-                        "Sidechain",
-                        "SCh"
-                    ],
-                    "type": "Sidechain",
-                    "targets": [
-                        "Entity"
-                    ]
-                }
-            ],
-            "labels": [
-                "Glycosylation",
-                "Glyc"
-            ],
-            "children": [],
-            "unused": false,
+            "unused": true,
             "bgColor": "lightgreen",
             "attributes": [
                 "Negation",
-                "Speculation"
+                "Confidence"
             ],
-            "type": "Glycosylation",
+            "type": "Transaction",
             "fgColor": "black"
         },
         {
             "borderColor": "darken",
             "normalizations": [],
-            "name": "Hydroxylation",
-            "arcs": [
+            "name": "Business",
+            "labels": null,
+            "children": [
                 {
-                    "arrowHead": "triangle,5",
-                    "color": "black",
-                    "labels": [
-                        "Theme",
-                        "Th"
+                    "borderColor": "darken",
+                    "normalizations": [],
+                    "name": "Start org",
+                    "arcs": [
+                        {
+                            "color": "black",
+                            "arrowHead": "triangle,5",
+                            "labels": [
+                                "Agent"
+                            ],
+                            "type": "Agent-Arg",
+                            "targets": [
+                                "Person",
+                                "Organization",
+                                "GPE"
+                            ]
+                        },
+                        {
+                            "color": "black",
+                            "arrowHead": "triangle,5",
+                            "labels": [
+                                "Org"
+                            ],
+                            "type": "Org-Arg",
+                            "targets": [
+                                "Organization"
+                            ]
+                        }
                     ],
-                    "hotkey": "T",
-                    "type": "Theme",
-                    "targets": [
-                        "Protein"
-                    ]
+                    "labels": [
+                        "Start org"
+                    ],
+                    "children": [],
+                    "unused": false,
+                    "bgColor": "lightgreen",
+                    "attributes": [
+                        "Negation",
+                        "Confidence"
+                    ],
+                    "type": "Start-org",
+                    "fgColor": "black"
                 },
                 {
-                    "color": "#0000aa",
-                    "arrowHead": "triangle,5",
-                    "labels": [
-                        "Site",
-                        "Si"
+                    "borderColor": "darken",
+                    "normalizations": [],
+                    "name": "Merge org",
+                    "arcs": [
+                        {
+                            "color": "black",
+                            "arrowHead": "triangle,5",
+                            "labels": [
+                                "Org"
+                            ],
+                            "type": "Org-Arg",
+                            "targets": [
+                                "Organization"
+                            ]
+                        }
                     ],
-                    "type": "Site",
-                    "targets": [
-                        "Entity"
-                    ]
+                    "labels": [
+                        "Merge org"
+                    ],
+                    "children": [],
+                    "unused": false,
+                    "bgColor": "lightgreen",
+                    "attributes": [
+                        "Negation",
+                        "Confidence"
+                    ],
+                    "type": "Merge-org",
+                    "fgColor": "black"
+                },
+                {
+                    "borderColor": "darken",
+                    "normalizations": [],
+                    "name": "End org",
+                    "arcs": [
+                        {
+                            "color": "black",
+                            "arrowHead": "triangle,5",
+                            "labels": [
+                                "Org"
+                            ],
+                            "type": "Org-Arg",
+                            "targets": [
+                                "Organization"
+                            ]
+                        }
+                    ],
+                    "labels": [
+                        "End org"
+                    ],
+                    "children": [],
+                    "unused": false,
+                    "bgColor": "lightgreen",
+                    "attributes": [
+                        "Negation",
+                        "Confidence"
+                    ],
+                    "type": "End-org",
+                    "fgColor": "black"
                 }
             ],
-            "labels": [
-                "Hydroxylation",
-                "Hydr"
-            ],
-            "children": [],
-            "unused": false,
+            "unused": true,
             "bgColor": "lightgreen",
-            "hotkey": "H",
             "attributes": [
                 "Negation",
-                "Speculation"
+                "Confidence"
             ],
-            "type": "Hydroxylation",
-            "fgColor": "black"
-        },
-        {
-            "borderColor": "darken",
-            "normalizations": [],
-            "name": "Phosphorylation",
-            "arcs": [
-                {
-                    "arrowHead": "triangle,5",
-                    "color": "black",
-                    "labels": [
-                        "Theme",
-                        "Th"
-                    ],
-                    "hotkey": "T",
-                    "type": "Theme",
-                    "targets": [
-                        "Protein"
-                    ]
-                },
-                {
-                    "color": "#0000aa",
-                    "arrowHead": "triangle,5",
-                    "labels": [
-                        "Site",
-                        "Si"
-                    ],
-                    "type": "Site",
-                    "targets": [
-                        "Entity"
-                    ]
-                }
-            ],
-            "labels": [
-                "Phosphorylation",
-                "Phos"
-            ],
-            "children": [],
-            "unused": false,
-            "bgColor": "lightgreen",
-            "attributes": [
-                "Negation",
-                "Speculation"
-            ],
-            "type": "Phosphorylation",
-            "fgColor": "black"
-        },
-        {
-            "borderColor": "darken",
-            "normalizations": [],
-            "name": "Ubiquitination",
-            "arcs": [
-                {
-                    "arrowHead": "triangle,5",
-                    "color": "black",
-                    "labels": [
-                        "Theme",
-                        "Th"
-                    ],
-                    "hotkey": "T",
-                    "type": "Theme",
-                    "targets": [
-                        "Protein"
-                    ]
-                },
-                {
-                    "color": "#0000aa",
-                    "arrowHead": "triangle,5",
-                    "labels": [
-                        "Site",
-                        "Si"
-                    ],
-                    "type": "Site",
-                    "targets": [
-                        "Entity"
-                    ]
-                }
-            ],
-            "labels": [
-                "Ubiquitination",
-                "Ubiq"
-            ],
-            "children": [],
-            "unused": false,
-            "bgColor": "lightgreen",
-            "hotkey": "U",
-            "attributes": [
-                "Negation",
-                "Speculation"
-            ],
-            "type": "Ubiquitination",
-            "fgColor": "black"
-        },
-        null,
-        {
-            "borderColor": "darken",
-            "normalizations": [],
-            "name": "Deacetylation",
-            "arcs": [
-                {
-                    "arrowHead": "triangle,5",
-                    "color": "black",
-                    "labels": [
-                        "Theme",
-                        "Th"
-                    ],
-                    "hotkey": "T",
-                    "type": "Theme",
-                    "targets": [
-                        "Protein"
-                    ]
-                },
-                {
-                    "color": "#0000aa",
-                    "arrowHead": "triangle,5",
-                    "labels": [
-                        "Site",
-                        "Si"
-                    ],
-                    "type": "Site",
-                    "targets": [
-                        "Entity"
-                    ]
-                },
-                {
-                    "color": "#303030",
-                    "arrowHead": "triangle,5",
-                    "labels": [
-                        "Contextgene",
-                        "CGn"
-                    ],
-                    "type": "Contextgene",
-                    "targets": [
-                        "Protein"
-                    ]
-                }
-            ],
-            "labels": [
-                "Deacetylation",
-                "-Acet"
-            ],
-            "children": [],
-            "unused": false,
-            "bgColor": "#18c59a",
-            "attributes": [
-                "Negation",
-                "Speculation"
-            ],
-            "type": "Deacetylation",
-            "fgColor": "black"
-        },
-        {
-            "borderColor": "darken",
-            "normalizations": [],
-            "name": "Demethylation",
-            "arcs": [
-                {
-                    "arrowHead": "triangle,5",
-                    "color": "black",
-                    "labels": [
-                        "Theme",
-                        "Th"
-                    ],
-                    "hotkey": "T",
-                    "type": "Theme",
-                    "targets": [
-                        "Protein"
-                    ]
-                },
-                {
-                    "color": "#0000aa",
-                    "arrowHead": "triangle,5",
-                    "labels": [
-                        "Site",
-                        "Si"
-                    ],
-                    "type": "Site",
-                    "targets": [
-                        "Entity"
-                    ]
-                },
-                {
-                    "color": "#303030",
-                    "arrowHead": "triangle,5",
-                    "labels": [
-                        "Contextgene",
-                        "CGn"
-                    ],
-                    "type": "Contextgene",
-                    "targets": [
-                        "Protein"
-                    ]
-                }
-            ],
-            "labels": [
-                "Demethylation",
-                "-Meth"
-            ],
-            "children": [],
-            "unused": false,
-            "bgColor": "#18c59a",
-            "attributes": [
-                "Negation",
-                "Speculation"
-            ],
-            "type": "Demethylation",
-            "fgColor": "black"
-        },
-        {
-            "borderColor": "darken",
-            "normalizations": [],
-            "name": "Deglycosylation",
-            "arcs": [
-                {
-                    "arrowHead": "triangle,5",
-                    "color": "black",
-                    "labels": [
-                        "Theme",
-                        "Th"
-                    ],
-                    "hotkey": "T",
-                    "type": "Theme",
-                    "targets": [
-                        "Protein"
-                    ]
-                },
-                {
-                    "color": "#0000aa",
-                    "arrowHead": "triangle,5",
-                    "labels": [
-                        "Site",
-                        "Si"
-                    ],
-                    "type": "Site",
-                    "targets": [
-                        "Entity"
-                    ]
-                },
-                {
-                    "color": "#303030",
-                    "arrowHead": "triangle,5",
-                    "labels": [
-                        "Sidechain",
-                        "SCh"
-                    ],
-                    "type": "Sidechain",
-                    "targets": [
-                        "Entity"
-                    ]
-                }
-            ],
-            "labels": [
-                "Deglycosylation",
-                "-Glyc"
-            ],
-            "children": [],
-            "unused": false,
-            "bgColor": "#18c59a",
-            "attributes": [
-                "Negation",
-                "Speculation"
-            ],
-            "type": "Deglycosylation",
-            "fgColor": "black"
-        },
-        {
-            "borderColor": "darken",
-            "normalizations": [],
-            "name": "Dehydroxylation",
-            "arcs": [
-                {
-                    "arrowHead": "triangle,5",
-                    "color": "black",
-                    "labels": [
-                        "Theme",
-                        "Th"
-                    ],
-                    "hotkey": "T",
-                    "type": "Theme",
-                    "targets": [
-                        "Protein"
-                    ]
-                },
-                {
-                    "color": "#0000aa",
-                    "arrowHead": "triangle,5",
-                    "labels": [
-                        "Site",
-                        "Si"
-                    ],
-                    "type": "Site",
-                    "targets": [
-                        "Entity"
-                    ]
-                }
-            ],
-            "labels": [
-                "Dehydroxylation",
-                "-Hydr"
-            ],
-            "children": [],
-            "unused": false,
-            "bgColor": "#18c59a",
-            "attributes": [
-                "Negation",
-                "Speculation"
-            ],
-            "type": "Dehydroxylation",
-            "fgColor": "black"
-        },
-        {
-            "borderColor": "darken",
-            "normalizations": [],
-            "name": "Dephosphorylation",
-            "arcs": [
-                {
-                    "arrowHead": "triangle,5",
-                    "color": "black",
-                    "labels": [
-                        "Theme",
-                        "Th"
-                    ],
-                    "hotkey": "T",
-                    "type": "Theme",
-                    "targets": [
-                        "Protein"
-                    ]
-                },
-                {
-                    "color": "#0000aa",
-                    "arrowHead": "triangle,5",
-                    "labels": [
-                        "Site",
-                        "Si"
-                    ],
-                    "type": "Site",
-                    "targets": [
-                        "Entity"
-                    ]
-                }
-            ],
-            "labels": [
-                "Dephosphorylation",
-                "-Phos"
-            ],
-            "children": [],
-            "unused": false,
-            "bgColor": "#18c59a",
-            "attributes": [
-                "Negation",
-                "Speculation"
-            ],
-            "type": "Dephosphorylation",
-            "fgColor": "black"
-        },
-        {
-            "borderColor": "darken",
-            "normalizations": [],
-            "name": "Deubiquitination",
-            "arcs": [
-                {
-                    "arrowHead": "triangle,5",
-                    "color": "black",
-                    "labels": [
-                        "Theme",
-                        "Th"
-                    ],
-                    "hotkey": "T",
-                    "type": "Theme",
-                    "targets": [
-                        "Protein"
-                    ]
-                },
-                {
-                    "color": "#0000aa",
-                    "arrowHead": "triangle,5",
-                    "labels": [
-                        "Site",
-                        "Si"
-                    ],
-                    "type": "Site",
-                    "targets": [
-                        "Entity"
-                    ]
-                }
-            ],
-            "labels": [
-                "Deubiquitination",
-                "-Ubiq"
-            ],
-            "children": [],
-            "unused": false,
-            "bgColor": "#18c59a",
-            "attributes": [
-                "Negation",
-                "Speculation"
-            ],
-            "type": "Deubiquitination",
+            "type": "Business",
             "fgColor": "black"
         }
     ],
@@ -818,201 +485,21 @@
         [
             "d",
             null,
-            "PMID-20184394",
-            1712140403.8098662,
-            47,
-            9,
-            5,
-            0
-        ],
-        [
-            "d",
-            null,
-            "PMID-9880569",
-            1712140403.8098662,
-            7,
-            0,
+            "iphone",
+            1714728883.5729399,
+            10,
             1,
-            0
-        ],
-        [
-            "d",
-            null,
-            "PMID-19781662",
-            1712140403.8098662,
-            27,
-            1,
-            8,
-            0
-        ],
-        [
-            "d",
-            null,
-            "PMID-18286479",
-            1712140403.8098662,
-            34,
             2,
-            7,
-            0
+            2
         ],
         [
             "d",
             null,
-            "PMID-16583246",
-            1712140403.8098662,
-            26,
-            0,
-            6,
-            0
-        ],
-        [
-            "d",
-            null,
-            "PMID-18264140",
-            1712140403.8098662,
-            32,
-            2,
-            2,
-            0
-        ],
-        [
-            "d",
-            null,
-            "PMID-12729016",
-            1712140403.8098662,
-            3,
+            "demo",
+            1714727099.2837207,
             0,
             0,
-            0
-        ],
-        [
-            "d",
-            null,
-            "PMID-7626109",
-            1712140403.8098662,
-            5,
             0,
-            0,
-            0
-        ],
-        [
-            "d",
-            null,
-            "PMID-9222494",
-            1712140403.8098662,
-            2,
-            0,
-            0,
-            0
-        ],
-        [
-            "d",
-            null,
-            "PMID-18296627",
-            1712140403.8098662,
-            21,
-            1,
-            4,
-            0
-        ],
-        [
-            "d",
-            null,
-            "PMID-17709377",
-            1712140403.8098662,
-            19,
-            1,
-            1,
-            0
-        ],
-        [
-            "d",
-            null,
-            "PMID-19208354",
-            1712140403.8098662,
-            12,
-            1,
-            0,
-            0
-        ],
-        [
-            "d",
-            null,
-            "PMID-11393792",
-            1712140403.8098662,
-            11,
-            0,
-            2,
-            0
-        ],
-        [
-            "d",
-            null,
-            "PMID-18054500",
-            1712140403.8098662,
-            6,
-            2,
-            2,
-            0
-        ],
-        [
-            "d",
-            null,
-            "PMID-19377285",
-            1712140403.8098662,
-            15,
-            4,
-            5,
-            0
-        ],
-        [
-            "d",
-            null,
-            "PMID-19609235",
-            1712140403.8098662,
-            15,
-            1,
-            1,
-            0
-        ],
-        [
-            "d",
-            null,
-            "PMID-8413307",
-            1712140403.8098662,
-            6,
-            0,
-            9,
-            0
-        ],
-        [
-            "d",
-            null,
-            "PMID-1590827",
-            1712140403.8098662,
-            9,
-            0,
-            6,
-            0
-        ],
-        [
-            "d",
-            null,
-            "PMID-16379001",
-            1712140403.8098662,
-            7,
-            1,
-            0,
-            0
-        ],
-        [
-            "d",
-            null,
-            "PMID-9655244",
-            1712140403.8098662,
-            5,
-            0,
-            2,
             0
         ]
     ],
@@ -1132,19 +619,6 @@
         {
             "borderColor": "darken",
             "arrowHead": "triangle,5",
-            "name": "Merge org",
-            "color": "black",
-            "labels": [
-                "Merge org"
-            ],
-            "unused": true,
-            "bgColor": "lightgreen",
-            "type": "Merge-org",
-            "fgColor": "black"
-        },
-        {
-            "borderColor": "darken",
-            "arrowHead": "triangle,5",
             "name": "Positive regulation",
             "color": "black",
             "labels": [
@@ -1215,20 +689,6 @@
         {
             "borderColor": "darken",
             "arrowHead": "triangle,5",
-            "name": "Geo-political entity",
-            "color": "black",
-            "labels": [
-                "Geo-political entity",
-                "GPE"
-            ],
-            "unused": true,
-            "bgColor": "#7fe2ff",
-            "type": "GPE",
-            "fgColor": "black"
-        },
-        {
-            "borderColor": "darken",
-            "arrowHead": "triangle,5",
             "name": "Regulon-operon",
             "color": "black",
             "labels": [
@@ -1238,6 +698,20 @@
             "unused": true,
             "bgColor": "#9999ff",
             "type": "Regulon-operon",
+            "fgColor": "black"
+        },
+        {
+            "borderColor": "darken",
+            "arrowHead": "triangle,5",
+            "name": "Phosphorylation",
+            "color": "black",
+            "labels": [
+                "Phosphorylation",
+                "Phos"
+            ],
+            "unused": true,
+            "bgColor": "lightgreen",
+            "type": "Phosphorylation",
             "fgColor": "black"
         },
         {
@@ -1256,6 +730,20 @@
         {
             "borderColor": "darken",
             "arrowHead": "triangle,5",
+            "name": "Deglycosylation",
+            "color": "black",
+            "labels": [
+                "Deglycosylation",
+                "-Glyc"
+            ],
+            "unused": true,
+            "bgColor": "#18c59a",
+            "type": "Deglycosylation",
+            "fgColor": "black"
+        },
+        {
+            "borderColor": "darken",
+            "arrowHead": "triangle,5",
             "name": "Point Mutation",
             "color": "black",
             "labels": [
@@ -1269,15 +757,15 @@
         {
             "borderColor": "darken",
             "arrowHead": "triangle,5",
-            "name": "Organization",
+            "name": "Dephosphorylation",
             "color": "black",
             "labels": [
-                "Organization",
-                "Org"
+                "Dephosphorylation",
+                "-Phos"
             ],
             "unused": true,
-            "bgColor": "#8fb2ff",
-            "type": "Organization",
+            "bgColor": "#18c59a",
+            "type": "Dephosphorylation",
             "fgColor": "black"
         },
         {
@@ -1339,6 +827,22 @@
         {
             "borderColor": "darken",
             "arrowHead": "triangle,5",
+            "name": "Entity",
+            "color": "black",
+            "labels": [
+                "Entity",
+                "Ent",
+                "En",
+                "E"
+            ],
+            "unused": true,
+            "bgColor": "#b4c8ff",
+            "type": "Entity",
+            "fgColor": "black"
+        },
+        {
+            "borderColor": "darken",
+            "arrowHead": "triangle,5",
             "name": "Subcellular structure",
             "color": "black",
             "labels": [
@@ -1351,6 +855,22 @@
             "unused": true,
             "bgColor": "#bbc3ff",
             "type": "Subcellular_structure",
+            "fgColor": "black"
+        },
+        {
+            "borderColor": "darken",
+            "arrowHead": "triangle,5",
+            "name": "Protein",
+            "color": "black",
+            "labels": [
+                "Protein",
+                "Pro",
+                "Pr",
+                "P"
+            ],
+            "unused": true,
+            "bgColor": "#7fa2ff",
+            "type": "Protein",
             "fgColor": "black"
         },
         {
@@ -1380,6 +900,20 @@
             "unused": true,
             "bgColor": "lightgreen",
             "type": "Participant",
+            "fgColor": "black"
+        },
+        {
+            "borderColor": "darken",
+            "arrowHead": "triangle,5",
+            "name": "Glycosylation",
+            "color": "black",
+            "labels": [
+                "Glycosylation",
+                "Glyc"
+            ],
+            "unused": true,
+            "bgColor": "lightgreen",
+            "type": "Glycosylation",
             "fgColor": "black"
         },
         {
@@ -1432,14 +966,15 @@
         {
             "borderColor": "darken",
             "arrowHead": "triangle,5",
-            "name": "Start org",
+            "name": "Catalysis",
             "color": "black",
             "labels": [
-                "Start org"
+                "Catalysis",
+                "Catal"
             ],
             "unused": true,
-            "bgColor": "lightgreen",
-            "type": "Start-org",
+            "bgColor": "#e0ff00",
+            "type": "Catalysis",
             "fgColor": "black"
         },
         {
@@ -1517,19 +1052,6 @@
         {
             "borderColor": "darken",
             "arrowHead": "triangle,5",
-            "name": "End org",
-            "color": "black",
-            "labels": [
-                "End org"
-            ],
-            "unused": true,
-            "bgColor": "lightgreen",
-            "type": "End-org",
-            "fgColor": "black"
-        },
-        {
-            "borderColor": "darken",
-            "arrowHead": "triangle,5",
             "name": "Biological process",
             "color": "black",
             "labels": [
@@ -1553,19 +1075,6 @@
             "unused": true,
             "bgColor": "lightgreen",
             "type": "Gene_Expression",
-            "fgColor": "black"
-        },
-        {
-            "borderColor": "darken",
-            "arrowHead": "triangle,5",
-            "name": "Transfer ownership",
-            "color": "black",
-            "labels": [
-                "Transfer ownership"
-            ],
-            "unused": true,
-            "bgColor": "lightgreen",
-            "type": "Transfer-ownership",
             "fgColor": "black"
         },
         {
@@ -1600,14 +1109,15 @@
         {
             "borderColor": "darken",
             "arrowHead": "triangle,5",
-            "name": "Transfer money",
+            "name": "Deacetylation",
             "color": "black",
             "labels": [
-                "Transfer money"
+                "Deacetylation",
+                "-Acet"
             ],
             "unused": true,
-            "bgColor": "lightgreen",
-            "type": "Transfer-money",
+            "bgColor": "#18c59a",
+            "type": "Deacetylation",
             "fgColor": "black"
         },
         {
@@ -1711,6 +1221,20 @@
         {
             "borderColor": "darken",
             "arrowHead": "triangle,5",
+            "name": "Hydroxylation",
+            "color": "black",
+            "labels": [
+                "Hydroxylation",
+                "Hydr"
+            ],
+            "unused": true,
+            "bgColor": "lightgreen",
+            "type": "Hydroxylation",
+            "fgColor": "black"
+        },
+        {
+            "borderColor": "darken",
+            "arrowHead": "triangle,5",
             "name": "Seller",
             "color": "black",
             "labels": [
@@ -1733,19 +1257,6 @@
             "unused": true,
             "bgColor": "lightgreen",
             "type": "Cellular_physiological_process",
-            "fgColor": "black"
-        },
-        {
-            "borderColor": "darken",
-            "arrowHead": "triangle,5",
-            "name": "Be born",
-            "color": "black",
-            "labels": [
-                "Be born"
-            ],
-            "unused": true,
-            "bgColor": "lightgreen",
-            "type": "Be-born",
             "fgColor": "black"
         },
         {
@@ -1795,14 +1306,15 @@
         {
             "borderColor": "darken",
             "arrowHead": "triangle,5",
-            "name": "Person",
+            "name": "Acetylation",
             "color": "black",
             "labels": [
-                "Person"
+                "Acetylation",
+                "Acet"
             ],
             "unused": true,
-            "bgColor": "#ffccaa",
-            "type": "Person",
+            "bgColor": "lightgreen",
+            "type": "Acetylation",
             "fgColor": "black"
         },
         {
@@ -1817,6 +1329,34 @@
             "unused": true,
             "bgColor": "lightgreen",
             "type": "Prenylation",
+            "fgColor": "black"
+        },
+        {
+            "borderColor": "darken",
+            "arrowHead": "triangle,5",
+            "name": "Demethylation",
+            "color": "black",
+            "labels": [
+                "Demethylation",
+                "-Meth"
+            ],
+            "unused": true,
+            "bgColor": "#18c59a",
+            "type": "Demethylation",
+            "fgColor": "black"
+        },
+        {
+            "borderColor": "darken",
+            "arrowHead": "triangle,5",
+            "name": "DNA demethylation",
+            "color": "black",
+            "labels": [
+                "DNA demethylation",
+                "DNA -meth"
+            ],
+            "unused": true,
+            "bgColor": "#18c59a",
+            "type": "DNA_demethylation",
             "fgColor": "black"
         },
         {
@@ -1873,6 +1413,20 @@
             "unused": true,
             "bgColor": "#b4c8ff",
             "type": "DNA_domain_or_region",
+            "fgColor": "black"
+        },
+        {
+            "borderColor": "darken",
+            "arrowHead": "triangle,5",
+            "name": "Dehydroxylation",
+            "color": "black",
+            "labels": [
+                "Dehydroxylation",
+                "-Hydr"
+            ],
+            "unused": true,
+            "bgColor": "#18c59a",
+            "type": "Dehydroxylation",
             "fgColor": "black"
         },
         {
@@ -2104,6 +1658,34 @@
         {
             "borderColor": "darken",
             "arrowHead": "triangle,5",
+            "name": "Ubiquitination",
+            "color": "black",
+            "labels": [
+                "Ubiquitination",
+                "Ubiq"
+            ],
+            "unused": true,
+            "bgColor": "lightgreen",
+            "type": "Ubiquitination",
+            "fgColor": "black"
+        },
+        {
+            "borderColor": "darken",
+            "arrowHead": "triangle,5",
+            "name": "Methylation",
+            "color": "black",
+            "labels": [
+                "Methylation",
+                "Meth"
+            ],
+            "unused": true,
+            "bgColor": "lightgreen",
+            "type": "Methylation",
+            "fgColor": "black"
+        },
+        {
+            "borderColor": "darken",
+            "arrowHead": "triangle,5",
             "name": "Two-component-system",
             "color": "black",
             "labels": [
@@ -2160,6 +1742,20 @@
         {
             "borderColor": "darken",
             "arrowHead": "triangle,5",
+            "name": "Deubiquitination",
+            "color": "black",
+            "labels": [
+                "Deubiquitination",
+                "-Ubiq"
+            ],
+            "unused": true,
+            "bgColor": "#18c59a",
+            "type": "Deubiquitination",
+            "fgColor": "black"
+        },
+        {
+            "borderColor": "darken",
+            "arrowHead": "triangle,5",
             "name": "Giver",
             "color": "black",
             "labels": [
@@ -2168,6 +1764,20 @@
             "unused": true,
             "bgColor": "lightgreen",
             "type": "Giver-Arg",
+            "fgColor": "black"
+        },
+        {
+            "borderColor": "darken",
+            "arrowHead": "triangle,5",
+            "name": "DNA methylation",
+            "color": "black",
+            "labels": [
+                "DNA methylation",
+                "DNA meth"
+            ],
+            "unused": true,
+            "bgColor": "lightgreen",
+            "type": "DNA_methylation",
             "fgColor": "black"
         },
         {
@@ -2196,6 +1806,21 @@
             "unused": true,
             "bgColor": "lightgreen",
             "type": "Beneficiary-Arg",
+            "fgColor": "black"
+        },
+        {
+            "borderColor": "darken",
+            "arrowHead": "none",
+            "name": "Equiv",
+            "color": "black",
+            "labels": [
+                "Equiv",
+                "Eq"
+            ],
+            "unused": true,
+            "bgColor": "lightgreen",
+            "dashArray": "3,3",
+            "type": "Equiv",
             "fgColor": "black"
         },
         {
@@ -2328,18 +1953,6 @@
         },
         {
             "borderColor": "darken",
-            "arrowHead": "none",
-            "name": "Alias",
-            "color": "black",
-            "labels": null,
-            "unused": true,
-            "bgColor": "lightgreen",
-            "dashArray": "3,3",
-            "type": "Alias",
-            "fgColor": "black"
-        },
-        {
-            "borderColor": "darken",
             "arrowHead": "triangle,5",
             "name": "Regulon-operon",
             "color": "black",
@@ -2389,6 +2002,20 @@
             "unused": true,
             "bgColor": "#ffeee0",
             "type": "Organism_substance",
+            "fgColor": "black"
+        },
+        {
+            "borderColor": "darken",
+            "arrowHead": "triangle,5",
+            "name": "Catalysis",
+            "color": "black",
+            "labels": [
+                "Catalysis",
+                "Catal"
+            ],
+            "unused": true,
+            "bgColor": "#e0ff00",
+            "type": "Catalysis",
             "fgColor": "black"
         },
         {
@@ -2708,20 +2335,6 @@
         {
             "borderColor": "darken",
             "arrowHead": "triangle,5",
-            "name": "Geo-political entity",
-            "color": "black",
-            "labels": [
-                "Geo-political entity",
-                "GPE"
-            ],
-            "unused": true,
-            "bgColor": "#7fe2ff",
-            "type": "GPE",
-            "fgColor": "black"
-        },
-        {
-            "borderColor": "darken",
-            "arrowHead": "triangle,5",
             "name": "Weapon",
             "color": "black",
             "labels": null,
@@ -2761,25 +2374,26 @@
         {
             "borderColor": "darken",
             "arrowHead": "triangle,5",
-            "name": "Person",
-            "color": "black",
-            "labels": [
-                "Person"
-            ],
-            "unused": true,
-            "bgColor": "#ffccaa",
-            "type": "Person",
-            "fgColor": "black"
-        },
-        {
-            "borderColor": "darken",
-            "arrowHead": "triangle,5",
             "name": "Polynucleotide",
             "color": "black",
             "labels": null,
             "unused": true,
             "bgColor": "#b4c8ff",
             "type": "Polynucleotide",
+            "fgColor": "black"
+        },
+        {
+            "borderColor": "darken",
+            "arrowHead": "triangle,5",
+            "name": "Deglycosylation",
+            "color": "black",
+            "labels": [
+                "Deglycosylation",
+                "-Glyc"
+            ],
+            "unused": true,
+            "bgColor": "#18c59a",
+            "type": "Deglycosylation",
             "fgColor": "black"
         },
         {
@@ -2807,15 +2421,15 @@
         {
             "borderColor": "darken",
             "arrowHead": "triangle,5",
-            "name": "Organization",
+            "name": "Dephosphorylation",
             "color": "black",
             "labels": [
-                "Organization",
-                "Org"
+                "Dephosphorylation",
+                "-Phos"
             ],
             "unused": true,
-            "bgColor": "#8fb2ff",
-            "type": "Organization",
+            "bgColor": "#18c59a",
+            "type": "Dephosphorylation",
             "fgColor": "black"
         },
         {
@@ -2871,6 +2485,34 @@
         {
             "borderColor": "darken",
             "arrowHead": "triangle,5",
+            "name": "Demethylation",
+            "color": "black",
+            "labels": [
+                "Demethylation",
+                "-Meth"
+            ],
+            "unused": true,
+            "bgColor": "#18c59a",
+            "type": "Demethylation",
+            "fgColor": "black"
+        },
+        {
+            "borderColor": "darken",
+            "arrowHead": "triangle,5",
+            "name": "DNA demethylation",
+            "color": "black",
+            "labels": [
+                "DNA demethylation",
+                "DNA -meth"
+            ],
+            "unused": true,
+            "bgColor": "#18c59a",
+            "type": "DNA_demethylation",
+            "fgColor": "black"
+        },
+        {
+            "borderColor": "darken",
+            "arrowHead": "triangle,5",
             "name": "ATTRIBUTE_DEFAULT",
             "color": "black",
             "labels": null,
@@ -2916,6 +2558,20 @@
             "unused": true,
             "bgColor": "#aaaaee",
             "type": "Facility",
+            "fgColor": "black"
+        },
+        {
+            "borderColor": "darken",
+            "arrowHead": "triangle,5",
+            "name": "Deubiquitination",
+            "color": "black",
+            "labels": [
+                "Deubiquitination",
+                "-Ubiq"
+            ],
+            "unused": true,
+            "bgColor": "#18c59a",
+            "type": "Deubiquitination",
             "fgColor": "black"
         },
         {
@@ -2972,6 +2628,22 @@
         {
             "borderColor": "darken",
             "arrowHead": "triangle,5",
+            "name": "Entity",
+            "color": "black",
+            "labels": [
+                "Entity",
+                "Ent",
+                "En",
+                "E"
+            ],
+            "unused": true,
+            "bgColor": "#b4c8ff",
+            "type": "Entity",
+            "fgColor": "black"
+        },
+        {
+            "borderColor": "darken",
+            "arrowHead": "triangle,5",
             "name": "Carbohydrate",
             "color": "black",
             "labels": [
@@ -3008,6 +2680,20 @@
         {
             "borderColor": "darken",
             "arrowHead": "triangle,5",
+            "name": "Deacetylation",
+            "color": "black",
+            "labels": [
+                "Deacetylation",
+                "-Acet"
+            ],
+            "unused": true,
+            "bgColor": "#18c59a",
+            "type": "Deacetylation",
+            "fgColor": "black"
+        },
+        {
+            "borderColor": "darken",
+            "arrowHead": "triangle,5",
             "name": "ToLoc",
             "color": "#0000cc",
             "labels": null,
@@ -3026,6 +2712,36 @@
             "bgColor": "#007000",
             "type": "Money",
             "fgColor": "white"
+        },
+        {
+            "borderColor": "darken",
+            "arrowHead": "triangle,5",
+            "name": "Dehydroxylation",
+            "color": "black",
+            "labels": [
+                "Dehydroxylation",
+                "-Hydr"
+            ],
+            "unused": true,
+            "bgColor": "#18c59a",
+            "type": "Dehydroxylation",
+            "fgColor": "black"
+        },
+        {
+            "borderColor": "darken",
+            "arrowHead": "triangle,5",
+            "name": "Protein",
+            "color": "black",
+            "labels": [
+                "Protein",
+                "Pro",
+                "Pr",
+                "P"
+            ],
+            "unused": true,
+            "bgColor": "#7fa2ff",
+            "type": "Protein",
+            "fgColor": "black"
         },
         {
             "borderColor": "darken",
@@ -3074,6 +2790,21 @@
             "bgColor": "lightgreen",
             "type": "SPAN_DEFAULT",
             "fgColor": "black"
+        },
+        {
+            "borderColor": "darken",
+            "arrowHead": "none",
+            "name": "Equiv",
+            "color": "black",
+            "labels": [
+                "Equiv",
+                "Eq"
+            ],
+            "unused": true,
+            "bgColor": "lightgreen",
+            "dashArray": "3,3",
+            "type": "Equiv",
+            "fgColor": "black"
         }
     ],
     "messages": [],
@@ -3092,13 +2823,19 @@
         {
             "unused": false,
             "values": {
-                "Speculation": {
-                    "dashArray": "3,3"
+                "High": {
+                    "glyph": "\u2191"
+                },
+                "Neutral": {
+                    "glyph": "\u2194"
+                },
+                "Low": {
+                    "glyph": "\u2193"
                 }
             },
             "labels": null,
-            "type": "Speculation",
-            "name": "Speculation"
+            "type": "Confidence",
+            "name": "Confidence"
         }
     ],
     "annotation_logging": false,
@@ -3119,60 +2856,175 @@
                 {
                     "role": "Arg1",
                     "targets": [
-                        "Protein"
+                        "Person"
                     ]
                 },
                 {
                     "role": "Arg2",
                     "targets": [
-                        "Protein"
+                        "GPE"
                     ]
                 }
             ],
-            "arrowHead": "none",
-            "name": "Equiv",
+            "arrowHead": "triangle,5",
+            "name": "Located",
             "color": "black",
-            "labels": [
-                "Equiv",
-                "Eq"
-            ],
+            "labels": null,
             "children": [],
             "unused": false,
-            "dashArray": "3,3",
             "attributes": [],
-            "type": "Equiv",
-            "properties": {
-                "symmetric": true,
-                "transitive": true
-            }
+            "type": "Located",
+            "properties": {}
         },
         {
             "args": [
                 {
                     "role": "Arg1",
                     "targets": [
-                        "Entity"
+                        "GPE"
                     ]
                 },
                 {
                     "role": "Arg2",
                     "targets": [
-                        "Entity"
+                        "GPE"
+                    ]
+                }
+            ],
+            "arrowHead": "triangle,5",
+            "name": "Geographical_part",
+            "color": "black",
+            "labels": null,
+            "children": [],
+            "unused": false,
+            "attributes": [],
+            "type": "Geographical_part",
+            "properties": {}
+        },
+        {
+            "args": [
+                {
+                    "role": "Arg1",
+                    "targets": [
+                        "Person"
+                    ]
+                },
+                {
+                    "role": "Arg2",
+                    "targets": [
+                        "Person"
+                    ]
+                }
+            ],
+            "arrowHead": "triangle,5",
+            "name": "Family",
+            "color": "black",
+            "labels": null,
+            "children": [],
+            "unused": false,
+            "attributes": [],
+            "type": "Family",
+            "properties": {}
+        },
+        {
+            "args": [
+                {
+                    "role": "Arg1",
+                    "targets": [
+                        "Person"
+                    ]
+                },
+                {
+                    "role": "Arg2",
+                    "targets": [
+                        "GPE"
+                    ]
+                }
+            ],
+            "arrowHead": "triangle,5",
+            "name": "Employment",
+            "color": "black",
+            "labels": null,
+            "children": [],
+            "unused": false,
+            "attributes": [],
+            "type": "Employment",
+            "properties": {}
+        },
+        {
+            "args": [
+                {
+                    "role": "Arg1",
+                    "targets": [
+                        "Person"
+                    ]
+                },
+                {
+                    "role": "Arg2",
+                    "targets": [
+                        "Organization"
+                    ]
+                }
+            ],
+            "arrowHead": "triangle,5",
+            "name": "Ownership",
+            "color": "black",
+            "labels": null,
+            "children": [],
+            "unused": false,
+            "attributes": [],
+            "type": "Ownership",
+            "properties": {}
+        },
+        {
+            "args": [
+                {
+                    "role": "Arg1",
+                    "targets": [
+                        "Organization"
+                    ]
+                },
+                {
+                    "role": "Arg2",
+                    "targets": [
+                        "GPE"
+                    ]
+                }
+            ],
+            "arrowHead": "triangle,5",
+            "name": "Origin",
+            "color": "black",
+            "labels": null,
+            "children": [],
+            "unused": false,
+            "attributes": [],
+            "type": "Origin",
+            "properties": {}
+        },
+        {
+            "args": [
+                {
+                    "role": "Arg1",
+                    "targets": [
+                        "Person"
+                    ]
+                },
+                {
+                    "role": "Arg2",
+                    "targets": [
+                        "Person"
                     ]
                 }
             ],
             "arrowHead": "none",
-            "name": "Equiv",
+            "name": "Alias",
             "color": "black",
-            "labels": [
-                "Equiv",
-                "Eq"
-            ],
+            "labels": null,
             "children": [],
             "unused": false,
             "dashArray": "3,3",
             "attributes": [],
-            "type": "Equiv",
+            "type": "Alias",
             "properties": {
                 "symmetric": true,
                 "transitive": true
@@ -3183,67 +3035,189 @@
         {
             "borderColor": "darken",
             "normalizations": [],
-            "name": "Protein",
-            "arcs": [
-                {
-                    "arrowHead": "none",
-                    "color": "black",
-                    "labels": [
-                        "Equiv",
-                        "Eq"
-                    ],
-                    "dashArray": "3,3",
-                    "type": "Equiv",
-                    "targets": [
-                        "Protein"
-                    ]
-                }
-            ],
-            "labels": [
-                "Protein",
-                "Pro",
-                "Pr",
-                "P"
-            ],
+            "name": "\u673a\u578b",
+            "labels": null,
             "children": [],
             "unused": false,
-            "bgColor": "#7fa2ff",
-            "hotkey": "P",
+            "bgColor": "lightgreen",
             "attributes": [],
-            "type": "Protein",
+            "type": "\u673a\u578b",
             "fgColor": "black"
         },
         {
             "borderColor": "darken",
             "normalizations": [],
-            "name": "Entity",
+            "name": "\u5916\u89c2",
+            "labels": null,
+            "children": [],
+            "unused": false,
+            "bgColor": "lightgreen",
+            "attributes": [],
+            "type": "\u5916\u89c2",
+            "fgColor": "black"
+        },
+        {
+            "borderColor": "darken",
+            "normalizations": [],
+            "name": "\u5c3a\u5bf8",
+            "labels": null,
+            "children": [],
+            "unused": false,
+            "bgColor": "lightgreen",
+            "attributes": [],
+            "type": "\u5c3a\u5bf8",
+            "fgColor": "black"
+        },
+        {
+            "borderColor": "darken",
+            "normalizations": [],
+            "name": "\u4ef7\u683c",
+            "labels": null,
+            "children": [],
+            "unused": false,
+            "bgColor": "lightgreen",
+            "attributes": [],
+            "type": "\u4ef7\u683c",
+            "fgColor": "black"
+        },
+        {
+            "borderColor": "darken",
+            "normalizations": [],
+            "name": "\u82af\u7247",
+            "labels": null,
+            "children": [],
+            "unused": false,
+            "bgColor": "lightgreen",
+            "attributes": [],
+            "type": "\u82af\u7247",
+            "fgColor": "black"
+        },
+        {
+            "borderColor": "darken",
+            "normalizations": [],
+            "name": "Person",
             "arcs": [
+                {
+                    "color": "black",
+                    "arrowHead": "triangle,5",
+                    "labels": [
+                        "Located"
+                    ],
+                    "type": "Located",
+                    "targets": [
+                        "GPE"
+                    ]
+                },
+                {
+                    "color": "black",
+                    "arrowHead": "triangle,5",
+                    "labels": [
+                        "Family"
+                    ],
+                    "type": "Family",
+                    "targets": [
+                        "Person"
+                    ]
+                },
+                {
+                    "color": "black",
+                    "arrowHead": "triangle,5",
+                    "labels": [
+                        "Employment"
+                    ],
+                    "type": "Employment",
+                    "targets": [
+                        "GPE"
+                    ]
+                },
+                {
+                    "color": "black",
+                    "arrowHead": "triangle,5",
+                    "labels": [
+                        "Ownership"
+                    ],
+                    "type": "Ownership",
+                    "targets": [
+                        "Organization"
+                    ]
+                },
                 {
                     "arrowHead": "none",
                     "color": "black",
                     "labels": [
-                        "Equiv",
-                        "Eq"
+                        "Alias"
                     ],
                     "dashArray": "3,3",
-                    "type": "Equiv",
+                    "type": "Alias",
                     "targets": [
-                        "Entity"
+                        "Person"
                     ]
                 }
             ],
             "labels": [
-                "Entity",
-                "Ent",
-                "En",
-                "E"
+                "Person"
             ],
             "children": [],
             "unused": false,
-            "bgColor": "#b4c8ff",
-            "hotkey": "E",
+            "bgColor": "#ffccaa",
             "attributes": [],
-            "type": "Entity",
+            "type": "Person",
+            "fgColor": "black"
+        },
+        {
+            "borderColor": "darken",
+            "normalizations": [],
+            "name": "Organization",
+            "arcs": [
+                {
+                    "color": "black",
+                    "arrowHead": "triangle,5",
+                    "labels": [
+                        "Origin"
+                    ],
+                    "type": "Origin",
+                    "targets": [
+                        "GPE"
+                    ]
+                }
+            ],
+            "labels": [
+                "Organization",
+                "Org"
+            ],
+            "children": [],
+            "unused": false,
+            "bgColor": "#8fb2ff",
+            "attributes": [],
+            "type": "Organization",
+            "fgColor": "black"
+        },
+        {
+            "borderColor": "darken",
+            "normalizations": [],
+            "name": "Geo-political entity",
+            "arcs": [
+                {
+                    "color": "black",
+                    "arrowHead": "triangle,5",
+                    "labels": [
+                        "Geographical_part"
+                    ],
+                    "type": "Geographical_part",
+                    "targets": [
+                        "GPE"
+                    ]
+                }
+            ],
+            "labels": [
+                "Geo-political entity",
+                "GPE"
+            ],
+            "children": [],
+            "unused": false,
+            "bgColor": "#7fe2ff",
+            "attributes": [],
+            "type": "GPE",
             "fgColor": "black"
         }
     ],

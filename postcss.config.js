@@ -7,6 +7,7 @@ module.exports = {
     [
       purgecss({
         content: ['./src/**/*.js'],
+        safelist: ['background1', 'bi-alarm'],
         keyframes: true,
         variables: true,
         fontFace: true,
